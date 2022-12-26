@@ -1,1 +1,14 @@
+service:
+  name: klog
 
+klog:
+  title: "Klog"
+  subtitle: "a bliki"
+  domain: "https://klog.example.com/"
+  primary_author: "Me Myself Andi"
+  generator: "klog, the bliki v0.0.1"
+  icon: "favicon.png"
+  logo: "logo.png"
+  style: "style.css"
+  rights: "&copy; MMXXII by Me Myself Andi"
+  home_entries: 10
