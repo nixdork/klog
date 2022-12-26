@@ -1,0 +1,67 @@
+service:
+  environment: development
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health
+      # override default actuator endpoint
+      base-path: /manage
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+spring:
+  devtools:
+    livereload:
+      enabled: false
+  jmx:
+    unique-names: true
+
+server:
+  port: '8080'
+  error:
+    include-stacktrace: always
+    include-message: always
+
+logging:
+  level:
+    Exposed: DEBUG
+    com:
+      figure:
+        core:
+          identitybroker:
+            domain:
+              usecase: DEBUG
+            frameworks:
+              web: DEBUG
+    org:
+      springframework:
+        boot:
+          autoconfigure: ERROR
+
+database:
+  name: klog
+  host: localhost
+  port: '5432'
+  username: postgres
+  schema: klog
+  password: password1
+  connection_pool_size: '10'
+
+klog:
+  title: 'The Standard Output'
+  subtitle: 'personal bliki of Jonas Gorauskas'
+  domain: 'http://localhost:8080'
+  primary_author: 'Jonas Gorauskas'
+  generator: 'klog, the bliki v0.0.1'
+  icon: 'static/favicon.png'
+  logo: 'static/logo.png'
+  style: 'static/style.css'
+  rights: '&copy; MMXXII by Jonas Gorauskas'
+  home_entries: 12
