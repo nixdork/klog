@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15.1-alpine
+    container_name: klog_postgres
+    networks:
+      klog-net:
+        aliases:
+          - postgres
+    restart: on-failure
+    healthcheck:
+      test: [ CMD-SHELL, pg_isready -U postgres ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password1
+    volumes:
+      - klog-migration:/var/lib/postgresql/data
+      - ./local-dbinit.sh:/docker-entrypoint-initdb.d/local-dbinit.sh
+
+volumes:
+  klog-migration:
+
+networks:
+  klog-net:
+    name: klog-net
