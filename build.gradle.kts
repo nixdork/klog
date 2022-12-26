@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "org.nixdork"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 configurations {
@@ -26,6 +26,17 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.flywaydb:flyway-core")
+    implementation("com.zaxxer:HikariCP")
+    implementation("org.jetbrains.exposed:exposed-core:0.41.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.41.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.41.1")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.41.1")
+    implementation("javax.validation:validation-api:2.0.1.Final")
+
+    // implementation("")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
+
+
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
