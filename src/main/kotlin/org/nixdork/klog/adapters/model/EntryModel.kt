@@ -8,11 +8,14 @@ data class EntryModel(
     val id: UUID,
     val title: String,
     val slug: String = title.slugify(),
+    val permalink: String,
     val draft: Boolean = true,
-    val updated: OffsetDateTime = OffsetDateTime.now(),
-    val published: OffsetDateTime? = null,
+    val createdAt: OffsetDateTime,
+    val updatedAt: OffsetDateTime? = null,
+    val publishedAt: OffsetDateTime? = null,
     val primaryAuthor: PersonModel,
     val content: String,
     val summary: String? = null,
-    val rights: String? = null
+    val tags: List<TagModel>,
+    val metadata: List<EntryMetadataModel>
 )
