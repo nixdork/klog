@@ -30,12 +30,12 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:0.41.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.41.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.41.1")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.41.1")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.41.1")
     implementation("javax.validation:validation-api:2.0.1.Final")
 
     // implementation("")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
-
+    implementation("org.postgresql:postgresql:42.5.1")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
