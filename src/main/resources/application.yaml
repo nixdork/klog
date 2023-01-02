@@ -10,5 +10,6 @@ klog:
   icon: "favicon.png"
   logo: "logo.png"
   style: "style.css"
-  rights: "&copy; MMXXII by Me Myself Andi"
+  rights: "&copy; MMXXIII by Me Myself Andi"
   home_entries: 10
+  password_age: 90
