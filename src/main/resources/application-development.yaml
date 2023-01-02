@@ -59,9 +59,7 @@ klog:
   subtitle: 'personal bliki of Jonas Gorauskas'
   domain: 'http://localhost:8080'
   primary_author: 'Jonas Gorauskas'
-  generator: 'klog, the bliki v0.0.1'
-  icon: 'static/favicon.png'
-  logo: 'static/logo.png'
-  style: 'static/style.css'
-  rights: '&copy; MMXXII by Jonas Gorauskas'
-  home_entries: 12
+  icon: 'static/images/favicon.png'
+  logo: 'static/images/logo.png'
+  style: 'static/styles/style.css'
+  rights: '&copy; MMXXIII by Jonas Gorauskas'
