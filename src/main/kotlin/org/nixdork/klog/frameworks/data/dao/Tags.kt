@@ -4,14 +4,16 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import java.util.UUID
+import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.TagModel
+import org.nixdork.klog.common.toOffsetDateTime
+import java.util.UUID
 
 object Tags : UUIDTable("tag") {
     val term = text("term")
     val permalink = text("permalink")
-    val label = text("label").nullable()
-    val scheme = text("scheme").nullable()
+    val createdAt = timestamp("created_at")
+    val updatedAt = timestamp("updated_at").nullable()
 }
 
 class Tag(id: EntityID<UUID>): UUIDEntity(id) {
@@ -19,15 +21,18 @@ class Tag(id: EntityID<UUID>): UUIDEntity(id) {
 
     var term by Tags.term
     var permalink by Tags.permalink
-    var label by Tags.label
-    var scheme by Tags.scheme
+    var createdAt by Tags.createdAt
+    var updatedAt by Tags.updatedAt
+
+    var entries by Entry via EntriesToTags
 
     fun toModel(): TagModel =
         TagModel(
             id = this.id.value,
             term = this.term,
             permalink = this.permalink,
-            label = this.label,
-            scheme = this.scheme
+            entries = this.entries.map { it.toModel() },
+            createdAt = this.createdAt.toOffsetDateTime(),
+            updatedAt = this.updatedAt?.toOffsetDateTime()
         )
 }
