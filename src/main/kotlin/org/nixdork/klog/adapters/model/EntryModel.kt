@@ -10,7 +10,7 @@ data class EntryModel(
     val slug: String = title.slugify(),
     val permalink: String,
     val draft: Boolean = true,
-    val createdAt: OffsetDateTime,
+    val createdAt: OffsetDateTime? = null,
     val updatedAt: OffsetDateTime? = null,
     val publishedAt: OffsetDateTime? = null,
     val primaryAuthor: PersonModel,

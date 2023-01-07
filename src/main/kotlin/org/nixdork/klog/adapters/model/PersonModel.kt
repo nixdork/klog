@@ -13,6 +13,6 @@ data class PersonModel(
     val uri: String? = null,
     val avatar: String? = null,
     val lastLoginAt: OffsetDateTime? = null,
-    val createdAt: OffsetDateTime,
+    val createdAt: OffsetDateTime? = null,
     val updatedAt: OffsetDateTime? = null
 )
