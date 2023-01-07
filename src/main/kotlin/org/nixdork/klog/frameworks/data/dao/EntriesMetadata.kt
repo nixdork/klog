@@ -1,5 +1,6 @@
 package org.nixdork.klog.frameworks.data.dao
 
+import java.time.OffsetDateTime
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -13,7 +14,7 @@ object EntriesMetadata : UUIDTable("entry_metadata") {
     val entry = reference("entry_id", Entries)
     val key = text("key")
     val value = text("value")
-    val createdAt = timestamp("created_at")
+    val createdAt = timestamp("created_at").default(OffsetDateTime.now().toInstant())
     val updatedAt = timestamp("updated_at").nullable()
 }
 
