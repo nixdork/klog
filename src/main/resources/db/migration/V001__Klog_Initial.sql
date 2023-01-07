@@ -67,7 +67,7 @@ create table if not exists entry_metadata
     updated_at timestamp
 );
 
-create index if not exists entry_metadata_key_idx on entry_metadata (entry, "key");
+create index if not exists entry_metadata_key_idx on entry_metadata (entry_id, "key");
 
 create or replace function table_updated_trgfn()
     returns trigger as
@@ -75,7 +75,7 @@ $$
 begin
     NEW.updated_at = now();
     return NEW;
-end;
+end
 $$ language 'plpgsql';
 
 create trigger person_updated_at_trg
@@ -83,25 +83,25 @@ create trigger person_updated_at_trg
     on "person"
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
 
 create trigger tag_updated_at_trg
     before update
     on "tag"
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
 
 create trigger entry_updated_at_trg
     before update
     on entry
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
 
 create trigger entry_metadata_updated_at_trg
     before update
     on entry_metadata
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
