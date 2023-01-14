@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.nixdork.klog.common.toJdbcUrl
-import org.nixdork.klog.frameworks.data.ShutdownHookHikariDataSource
 import org.nixdork.klog.frameworks.data.config.properties.DatabaseProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
