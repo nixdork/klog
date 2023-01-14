@@ -22,5 +22,6 @@ data class KlogProperties(
     val logo: String,
     val style: String,
     val rights: String,
-    val homeEntries: Int
+    val homeEntries: Int,
+    val passwordAge: Int
 )
