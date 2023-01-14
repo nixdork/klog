@@ -54,6 +54,7 @@ class ApplicationConfiguration(
             logo = klogProperties.logo,
             style = klogProperties.style,
             rights = klogProperties.rights,
-            homeEntries = klogProperties.homeEntries
+            homeEntries = klogProperties.homeEntries,
+            passwordAge = klogProperties.passwordAge
         )
 }
