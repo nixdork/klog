@@ -11,5 +11,6 @@ interface TagsRepository {
 
     fun upsertTag(tag: TagModel): TagModel
 
-    fun deleteTag(tagId: UUID)
+    fun deleteTagById(tagId: UUID)
+    fun deleteTagByTerm(term: String)
 }

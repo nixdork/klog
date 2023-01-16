@@ -34,7 +34,11 @@ class ExposedTagsRepository : TagsRepository {
                 }
         }
 
-    override fun deleteTag(tagId: UUID) {
+    override fun deleteTagById(tagId: UUID) {
         transaction { Tags.deleteWhere { Tags.id eq tagId } }
+    }
+
+    override fun deleteTagByTerm(term: String) {
+        transaction { Tags.deleteWhere { Tags.term eq term } }
     }
 }
