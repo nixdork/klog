@@ -9,15 +9,16 @@ import org.nixdork.klog.adapters.model.PersonModel
 import java.util.UUID
 import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.PersonLoginModel
+import org.nixdork.klog.adapters.model.VerifyLoginModel
 import org.nixdork.klog.common.PgEnum
 import org.nixdork.klog.common.Roles
 import org.nixdork.klog.common.toOffsetDateTime
 
 object People : UUIDTable("person") {
-    val name = text("name")
+    val name = text("name").nullable()
     val email = text("email")
-    val hash = text("hash")
-    val salt = text("salt")
+    val hash = text("hash").nullable()
+    val salt = text("salt").nullable()
     val pwat = timestamp("pwat").nullable()
     val role = customEnumeration("role",
         "klog_role",
@@ -60,15 +61,13 @@ class Person(id: EntityID<UUID>): UUIDEntity(id) {
             updatedAt = this.updatedAt?.toOffsetDateTime()
         )
 
-    fun toPasswordModel(): PersonLoginModel =
-        PersonLoginModel(
+    fun toVerifyLoginModel(): VerifyLoginModel =
+        VerifyLoginModel(
             id = this.id.value,
             email = this.email,
             hash = this.hash,
             salt = this.salt,
-            passwordAt = this.pwat?.toOffsetDateTime(),
             role = this.role,
-            lastLoginAt = this.lastLoginAt?.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime()
+            lastLoginAt = this.lastLoginAt?.toOffsetDateTime()
         )
 }
