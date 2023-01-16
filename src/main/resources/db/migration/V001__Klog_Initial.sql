@@ -7,9 +7,9 @@ create table if not exists person
     id            uuid primary key not null,
     "name"        text             not null,
     email         text             not null,
-    "hash"        text             not null, -- hex encoded
-    salt          text             not null, -- hex encoded
-    pwat          timestamp,                 -- password updated at
+    "hash"        text,      -- hex encoded
+    salt          text,      -- hex encoded
+    pwat          timestamp, -- password updated at
     "role"        klog_role                 default 'CONTRIBUTOR',
     uri           text,
     avatar        text,

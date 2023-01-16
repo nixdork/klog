@@ -12,11 +12,11 @@ create type klog_role as enum ('CONTRIBUTOR', 'ADMIN');
 create table if not exists person
 (
     id            uuid primary key not null,
-    "name"        text             not null,
+    "name"        text,
     email         text             not null,
-    "hash"        text             not null, -- hex encoded
-    salt          text             not null, -- hex encoded
-    pwat          timestamp,                 -- password updated at
+    "hash"        text,      -- hex encoded
+    salt          text,      -- hex encoded
+    pwat          timestamp, -- password updated at
     "role"        klog_role                 default 'CONTRIBUTOR',
     uri           text,
     avatar        text,
@@ -90,25 +90,25 @@ create trigger person_updated_at_trg
     on "person"
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
 
 create trigger tag_updated_at_trg
     before update
     on "tag"
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
 
 create trigger entry_updated_at_trg
     before update
     on entry
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
 
 create trigger entry_metadata_updated_at_trg
     before update
     on entry_metadata
     for each row
     when ((pg_trigger_depth() < 1))
-    execute function table_updated_trgfn();
+execute function table_updated_trgfn();
