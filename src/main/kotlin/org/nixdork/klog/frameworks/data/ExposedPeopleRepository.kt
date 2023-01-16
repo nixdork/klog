@@ -12,7 +12,12 @@ import org.nixdork.klog.frameworks.data.dao.People
 import org.nixdork.klog.frameworks.data.dao.Person
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.time.OffsetDateTime
 import java.util.UUID
+import org.nixdork.klog.adapters.model.PasswordCreateResetModel
+import org.nixdork.klog.adapters.model.VerifyLoginModel
+import org.nixdork.klog.common.generateHash
+import org.nixdork.klog.common.generateSalt
 
 @Component
 class ExposedPeopleRepository : PeopleRepository {
@@ -23,15 +28,21 @@ class ExposedPeopleRepository : PeopleRepository {
 
     override fun getPersonById(id: UUID): PersonModel? = transaction { Person.findById(id)?.toModel() }
 
-    override fun getPasswordByEmail(email: String): PersonLoginModel? =
-        transaction { Person.find(People.email eq email).singleOrNull()?.toPasswordModel() }
+    override fun getPasswordByEmail(email: String): VerifyLoginModel? =
+        transaction { Person.find(People.email eq email).singleOrNull()?.toVerifyLoginModel() }
 
     override fun verifyPassword(password: PersonLoginModel): Boolean =
-        transaction { password.hash == Person.find(People.email eq password.email).singleOrNull()?.hash }
+        transaction {
+            val pwd = getPasswordByEmail(password.email)?.let { it.hash to it.salt }
+            requireNotNull(pwd) { "Person not found!" }
+            requireNotNull(pwd.first) { "Password missing!" }
+            requireNotNull(pwd.second) { "Password missing!" }
+            pwd.first!! == generateHash(password.password, pwd.second!!)
+        }
 
     override fun updateLastLogin(personId: UUID): PersonModel? =
         transaction {
-            People.update({ People.id eq personId }) { it[lastLoginAt] = Instant.now() }
+            People.update({ People.id eq personId }) { it[lastLoginAt] = OffsetDateTime.now().toInstant() }
             Person.findById(personId)?.toModel()
         }
 
@@ -51,14 +62,14 @@ class ExposedPeopleRepository : PeopleRepository {
                 }
         }
 
-    override fun upsertPassword(password: PersonLoginModel): PersonModel =
+    override fun upsertPassword(password: PasswordCreateResetModel): PersonModel =
         transaction {
+            val salt = getPasswordByEmail(password.email)?.salt ?: generateSalt(16)
             People.upsert {
                 it[id] = password.id
                 it[email] = password.email
-                it[hash] = password.hash
-                it[salt] = password.salt
-                it[role] = password.role
+                it[hash] = generateHash(password.newPassword, salt)
+                it[People.salt] = salt
                 it[pwat] = Instant.now()
             }.resultedValues!!
                 .single()
@@ -67,7 +78,11 @@ class ExposedPeopleRepository : PeopleRepository {
                 }
         }
 
-    override fun deletePerson(personId: UUID) {
+    override fun deletePersonById(personId: UUID) {
         transaction { People.deleteWhere { People.id eq personId } }
+    }
+
+    override fun deletePersonByEmail(email: String) {
+        transaction { People.deleteWhere { People.email eq email } }
     }
 }
