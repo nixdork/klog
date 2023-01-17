@@ -4,9 +4,9 @@ import java.time.LocalDate
 
 data class ArchiveModel(
     val date: LocalDate,
-    val year: Int,
-    val month: Int,
-    val day: Int,
-    val monthYear: String, // "2022-01" sortable
+    val year: Int? = date.year,
+    val month: Int? = date.month.value,
+    val day: Int? = date.dayOfMonth,
+    val monthYear: String? = "${date.year}-${date.month.value}", // "2022-01" sortable
     val entries: List<EntryModel>
 )
