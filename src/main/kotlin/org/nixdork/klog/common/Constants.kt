@@ -1,7 +1,8 @@
 package org.nixdork.klog.common
 
 // Crypto
-const val CRYPTO_SECURE_RANDOM_ALGORITHM = "NativePRNGNonBlocking"
+const val CRYPTO_HASH_RANDOM_ALGORITHM = "SHA3-256"
+const val CRYPTO_SALT_RANDOM_ALGORITHM = "NativePRNGNonBlocking"
 const val CRYPTO_BYTES_TO_GENERATE = 16
 
 // DataSource
