@@ -1,12 +1,12 @@
 package org.nixdork.klog.adapters.model
 
 import java.time.OffsetDateTime
-import java.util.UUID
 import org.nixdork.klog.common.Roles
+import java.util.UUID
 
 data class PersonModel(
     val id: UUID,
-    val name: String,
+    val name: String?,
     val email: String,
     val passwordAt: OffsetDateTime? = null,
     val role: Roles,
