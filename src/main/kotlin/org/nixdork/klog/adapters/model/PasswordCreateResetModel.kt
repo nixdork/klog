@@ -5,6 +5,6 @@ import java.util.UUID
 data class PasswordCreateResetModel(
     val id: UUID,
     val email: String,
-    val password: String,
-    val newPassword: String? = null,
+    val password: String? = null,
+    val newPassword: String,
 )

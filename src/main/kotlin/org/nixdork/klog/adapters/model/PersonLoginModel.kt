@@ -7,8 +7,7 @@ import org.nixdork.klog.common.Roles
 data class PersonLoginModel(
     val id: UUID,
     val email: String,
-    val hash: String,
-    val salt: String,
+    val password: String,
     val passwordAt: OffsetDateTime? = null,
     val role: Roles,
     val lastLoginAt: OffsetDateTime? = null,
