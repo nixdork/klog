@@ -10,6 +10,7 @@ import java.time.ZoneOffset
 import java.util.UUID
 import org.nixdork.klog.adapters.model.EntryMetadataModel
 import org.nixdork.klog.adapters.model.EntryModel
+import org.nixdork.klog.adapters.model.PersonLoginModel
 
 val faker by lazy { Faker() }
 
@@ -29,7 +30,7 @@ fun Faker.createRandomAdmin() =
     PersonModel(
         id = UUID.randomUUID(),
         name = faker.cosmere.allomancers(),
-        email = faker.internet.unique.email(),
+        email = faker.internet.email(),
         role = Roles.ADMIN,
         uri = faker.internet.domain(),
         avatar = faker.cosmere.shardWorlds(),
@@ -43,17 +44,16 @@ fun Faker.createAdmin(uuid: UUID = UUID.randomUUID()) =
         email = "jgorauskas@gmail.com",
         role = Roles.ADMIN,
         uri = "https://nixdork.org",
-        avatar = "jonasg.png",
-        createdAt = OffsetDateTime.now(ZoneOffset.UTC),
+        avatar = "jonasg.png"
     )
 
 fun Faker.createRandomAuthor() = this.createRandomAdmin().copy(role = Roles.CONTRIBUTOR)
 
-fun Faker.createRandomPassword(uuid: UUID = UUID.randomUUID()) =
+fun Faker.createRandomPassword(uuid: UUID = UUID.randomUUID(), email: String) =
     PasswordCreateResetModel(
         id = uuid,
-        email = faker.internet.email(),
-        password = faker.random.randomString(
+        email = email,
+        newPassword = faker.random.randomString(
             length = 16,
             indexChars = true,
             auxiliaryChars = true,
@@ -66,7 +66,7 @@ fun Faker.createPassword(uuid: UUID = UUID.randomUUID()) =
     PasswordCreateResetModel(
         id = uuid,
         email = "jgorauskas@gmail.com",
-        password = "abcdef1234567890"
+        newPassword = "abcdef1234567890"
     )
 
 fun Faker.resetRandomPassword(
@@ -88,6 +88,24 @@ fun Faker.resetRandomPassword(
 
 fun Faker.resetPassword(uuid: UUID = UUID.randomUUID()) =
     this.createPassword(uuid).copy(newPassword = "ABCDEF1234567890")
+
+fun Faker.createRandomLogin(uuid: UUID = UUID.randomUUID(), email: String): PersonLoginModel {
+    return PersonLoginModel(
+        id = uuid,
+        email = email,
+        password = faker.random.randomString(
+            length = 16,
+            indexChars = true,
+            auxiliaryChars = true,
+            punctuationChars = true,
+            numericalChars = true,
+        ),
+        role = Roles.CONTRIBUTOR,
+    )
+}
+
+fun Faker.createLogin(pwd: PasswordCreateResetModel) =
+    this.createRandomLogin(pwd.id, pwd.email).copy(password = pwd.newPassword, role = Roles.ADMIN)
 
 fun Faker.createRandomEntry(
     author: PersonModel,
