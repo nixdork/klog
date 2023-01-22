@@ -72,7 +72,6 @@ class ExposedEntriesRepository : EntriesRepository {
                 val (year, month) = it.key.split('-')
                 ArchiveModel(
                     date = LocalDate.of(year.toInt(), month.toInt(), 1),
-                    monthYear = it.key,
                     entries = it.value.map { entry -> Entry.wrapRow(entry).toModel() }
                 )
             }.let { ArchiveWrapperModel(archives = it) }
