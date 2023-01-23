@@ -7,14 +7,11 @@ import io.kotest.matchers.date.shouldHaveSameDayAs
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.nixdork.klog.adapters.model.PasswordCreateResetModel
 import org.nixdork.klog.adapters.model.PersonLoginModel
 import org.nixdork.klog.adapters.model.PersonModel
 import org.nixdork.klog.common.generateHash
 import org.nixdork.klog.common.generateSalt
-import org.nixdork.klog.frameworks.data.dao.People
 import org.nixdork.klog.util.createAdmin
 import org.nixdork.klog.util.createLogin
 import org.nixdork.klog.util.createPassword
@@ -27,6 +24,7 @@ import org.nixdork.klog.util.installPostgres
 import org.nixdork.klog.util.resetPassword
 import java.time.OffsetDateTime
 import java.util.UUID
+import org.nixdork.klog.util.insertPerson
 
 class ExposedPeopleRepositorySpec : FunSpec({
     installPostgres()
@@ -46,62 +44,27 @@ class ExposedPeopleRepositorySpec : FunSpec({
 
     beforeSpec {
         peopleRepo = ExposedPeopleRepository()
+
         meAdmin = faker.createAdmin()
         mePwd = faker.createPassword(meAdmin.id)
         meReset = faker.resetPassword(meAdmin.id)
-        transaction {
-            People.insert {
-                salt = generateSalt(16)
-                hash = generateHash(mePwd.newPassword, salt)
-                it[id] = meAdmin.id
-                it[email] = meAdmin.email
-                it[name] = meAdmin.name
-                it[role] = meAdmin.role
-                it[uri] = meAdmin.uri
-                it[avatar] = meAdmin.avatar
-                it[pwat] = OffsetDateTime.now().toInstant()
-                it[People.salt] = salt
-                it[People.hash] = hash
-            }
-        }
+        salt = generateSalt(16)
+        hash = generateHash(mePwd.newPassword, salt)
+        insertPerson(meAdmin, salt, hash)
         meLogin = faker.createLogin(mePwd)
 
         anyAdmin = faker.createRandomAdmin()
         anyPwd = faker.createRandomPassword(anyAdmin.id, anyAdmin.email)
-        transaction {
-            People.insert {
-                salt = generateSalt(16)
-                hash = generateHash(anyPwd.newPassword, salt)
-                it[id] = anyAdmin.id
-                it[email] = anyAdmin.email
-                it[name] = anyAdmin.name
-                it[role] = anyAdmin.role
-                it[uri] = anyAdmin.uri
-                it[avatar] = anyAdmin.avatar
-                it[pwat] = OffsetDateTime.now().toInstant()
-                it[People.salt] = salt
-                it[People.hash] = hash
-            }
-        }
+        salt = generateSalt(16)
+        hash = generateHash(anyPwd.newPassword, salt)
+        insertPerson(anyAdmin, salt, hash)
         anyLogin = faker.createLogin(anyPwd)
 
         anyAuthor = faker.createRandomAuthor()
         anyPwdAuthor = faker.createRandomPassword(anyAuthor.id, anyAuthor.email)
-        transaction {
-            People.insert {
-                salt = generateSalt(16)
-                hash = generateHash(anyPwdAuthor.newPassword, salt)
-                it[id] = anyAuthor.id
-                it[email] = anyAuthor.email
-                it[name] = anyAuthor.name
-                it[role] = anyAuthor.role
-                it[uri] = anyAuthor.uri
-                it[avatar] = anyAuthor.avatar
-                it[pwat] = OffsetDateTime.now().toInstant()
-                it[People.salt] = salt
-                it[People.hash] = hash
-            }
-        }
+        salt = generateSalt(16)
+        hash = generateHash(anyPwdAuthor.newPassword, salt)
+        insertPerson(anyAuthor, salt, hash)
     }
 
     context("GET") {
