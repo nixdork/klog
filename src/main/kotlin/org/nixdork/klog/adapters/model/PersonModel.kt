@@ -1,7 +1,7 @@
 package org.nixdork.klog.adapters.model
 
-import java.time.OffsetDateTime
 import org.nixdork.klog.common.Roles
+import java.time.OffsetDateTime
 import java.util.UUID
 
 data class PersonModel(

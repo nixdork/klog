@@ -1,15 +1,15 @@
 package org.nixdork.klog.frameworks.data
 
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.nixdork.klog.adapters.data.TagsRepository
 import org.nixdork.klog.adapters.model.TagModel
 import org.nixdork.klog.adapters.model.TagWrapperModel
-import org.nixdork.klog.frameworks.data.dao.Tag
-import org.springframework.stereotype.Component
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
 import org.nixdork.klog.common.upsert
+import org.nixdork.klog.frameworks.data.dao.Tag
 import org.nixdork.klog.frameworks.data.dao.Tags
+import org.springframework.stereotype.Component
 import java.util.UUID
 
 @Component

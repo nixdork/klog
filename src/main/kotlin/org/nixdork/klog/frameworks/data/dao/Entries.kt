@@ -1,6 +1,5 @@
 package org.nixdork.klog.frameworks.data.dao
 
-import java.time.OffsetDateTime
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -8,8 +7,8 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.EntryModel
 import org.nixdork.klog.common.toOffsetDateTime
+import java.time.OffsetDateTime
 import java.util.UUID
-import org.nixdork.klog.frameworks.data.dao.EntriesMetadata.default
 
 object Entries : UUIDTable(name = "entry") {
     val slug = text("slug")

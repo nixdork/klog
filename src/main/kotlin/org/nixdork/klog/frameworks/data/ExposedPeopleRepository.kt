@@ -5,8 +5,12 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import org.nixdork.klog.adapters.data.PeopleRepository
-import org.nixdork.klog.adapters.model.PersonModel
+import org.nixdork.klog.adapters.model.PasswordCreateResetModel
 import org.nixdork.klog.adapters.model.PersonLoginModel
+import org.nixdork.klog.adapters.model.PersonModel
+import org.nixdork.klog.adapters.model.VerifyLoginModel
+import org.nixdork.klog.common.generateHash
+import org.nixdork.klog.common.generateSalt
 import org.nixdork.klog.common.upsert
 import org.nixdork.klog.frameworks.data.dao.People
 import org.nixdork.klog.frameworks.data.dao.Person
@@ -14,10 +18,6 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.UUID
-import org.nixdork.klog.adapters.model.PasswordCreateResetModel
-import org.nixdork.klog.adapters.model.VerifyLoginModel
-import org.nixdork.klog.common.generateHash
-import org.nixdork.klog.common.generateSalt
 
 @Component
 class ExposedPeopleRepository : PeopleRepository {

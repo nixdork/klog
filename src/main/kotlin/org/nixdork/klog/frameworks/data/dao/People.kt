@@ -1,18 +1,17 @@
 package org.nixdork.klog.frameworks.data.dao
 
-import java.time.OffsetDateTime
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.nixdork.klog.adapters.model.PersonModel
-import java.util.UUID
 import org.jetbrains.exposed.sql.javatime.timestamp
-import org.nixdork.klog.adapters.model.PersonLoginModel
+import org.nixdork.klog.adapters.model.PersonModel
 import org.nixdork.klog.adapters.model.VerifyLoginModel
 import org.nixdork.klog.common.PgEnum
 import org.nixdork.klog.common.Roles
 import org.nixdork.klog.common.toOffsetDateTime
+import java.time.OffsetDateTime
+import java.util.UUID
 
 object People : UUIDTable("person") {
     val name = text("name").nullable()
