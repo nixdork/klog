@@ -9,6 +9,7 @@ import org.nixdork.klog.adapters.model.EntryModel
 import org.nixdork.klog.common.toOffsetDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
+import org.nixdork.klog.adapters.model.TagModel
 
 object Entries : UUIDTable(name = "entry") {
     val slug = text("slug")
@@ -37,10 +38,9 @@ class Entry(id: EntityID<UUID>): UUIDEntity(id) {
     var content by Entries.content
     var summary by Entries.summary
 
-    var tags by Tag via EntriesToTags
-    val metadata by EntryMetadata referrersOn EntriesMetadata.entry
+    val metadata by EntryMetadata referrersOn EntriesMetadata.entryId
 
-    fun toModel(): EntryModel =
+    fun toModel(tags: List<TagModel>): EntryModel =
         EntryModel(
             id = this.id.value,
             title = this.title,
@@ -53,7 +53,7 @@ class Entry(id: EntityID<UUID>): UUIDEntity(id) {
             primaryAuthor = this.primaryAuthor.toModel(),
             content = this.content,
             summary = this.summary,
-            tags = this.tags.map { it.toModel() },
+            tags = tags,
             metadata = this.metadata.map { it.toModel() }
         )
 }

@@ -22,8 +22,8 @@ import org.nixdork.klog.frameworks.data.dao.Entry
 import org.nixdork.klog.frameworks.data.dao.Tag
 import org.nixdork.klog.frameworks.data.dao.Tags
 import org.springframework.stereotype.Component
-import java.time.Instant
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @Component
@@ -33,31 +33,72 @@ class ExposedEntriesRepository : EntriesRepository {
             Entries.select { Entries.draft eq false }
                 .orderBy(Entries.updatedAt to SortOrder.DESC)
                 .limit(n)
-                .map {
-                    Entry.wrapRow(it).toModel()
+                .map { entry ->
+                    Entry.wrapRow(entry)
+                        .toModel(
+                            Tags.innerJoin(EntriesToTags)
+                                .select { EntriesToTags.entryId eq entry[Entries.id] }
+                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                        )
                 }
         }.toEntryWrapper()
 
     override fun getAllEntries(): EntryWrapperModel =
-        transaction { Entry.all().map { it.toModel() } }.toEntryWrapper()
+        transaction {
+            Entry.all()
+                .map { entry ->
+                    entry.toModel(
+                        Tags.innerJoin(EntriesToTags)
+                            .select { EntriesToTags.entryId eq entry.id }
+                            .map { tag -> Tag.wrapRow(tag).toModel() }
+                    )
+                }.toEntryWrapper()
+        }
 
     override fun getEntryBySlug(slug: String): EntryModel? =
-        transaction { Entry.find(Entries.slug eq slug).singleOrNull()?.toModel() }
+        transaction {
+            Entry.find(Entries.slug eq slug)
+                .singleOrNull()
+                ?.let { entry ->
+                    entry.toModel(
+                        Tags.innerJoin(EntriesToTags)
+                            .select { EntriesToTags.entryId eq entry.id }
+                            .map { tag -> Tag.wrapRow(tag).toModel() }
+                    )
+                }
+        }
 
-    override fun getEntryById(id: UUID): EntryModel? = transaction { Entry.findById(id)?.toModel() }
+    override fun getEntryById(id: UUID): EntryModel? =
+        transaction {
+            Entry.findById(id)?.let { entry ->
+                entry.toModel(
+                    Tags.innerJoin(EntriesToTags)
+                        .select { EntriesToTags.entryId eq entry.id }
+                        .map { tag -> Tag.wrapRow(tag).toModel() }
+                )
+            }
+        }
 
     override fun getEntriesByTag(term: String): TagToEntriesWrapperModel =
         transaction {
-            (Tags innerJoin EntriesToTags innerJoin Entries)
-                .select { Tags.term eq term }
-                .map { Pair(Tag.wrapRow(it), Entry.wrapRow(it)) }
-                .groupBy { it.first }
-                .let {
-                    TagToEntriesWrapperModel(
-                        tag = it.keys.first().toModel(),
-                        entries = it.values.flatMap { it.map { p -> p.second.toModel() } }
-                    )
+            val tag = Tag.find(Tags.term eq term).singleOrNull()?.toModel()
+            requireNotNull(tag) { "Tag not found!" }
+            val entries = Entries.innerJoin(EntriesToTags)
+                .select(EntriesToTags.tagId eq tag.id)
+                .map { Entry.wrapRow(it) }
+                .let { entries ->
+                    entries.map { entry ->
+                        entry.toModel(
+                            Tags.innerJoin(EntriesToTags)
+                                .select { EntriesToTags.entryId eq entry.id }
+                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                        )
+                    }
                 }
+            TagToEntriesWrapperModel(
+                tag = tag,
+                entries = entries
+            )
         }
 
     override fun getArchivedEntries(): ArchiveWrapperModel =
@@ -66,13 +107,21 @@ class ExposedEntriesRepository : EntriesRepository {
                 Entries.draft eq false
             }.groupBy {
                 val year = it[Entries.publishedAt]?.toOffsetDateTime()?.year?.toString()?.padStart(4, '0')
-                val month = it[Entries.publishedAt]?.toOffsetDateTime()?.month?.toString()?.padStart(2, '0')
+                val month = it[Entries.publishedAt]?.toOffsetDateTime()?.month?.value?.toString()?.padStart(2, '0')
                 "$year-$month"
             }.map {
                 val (year, month) = it.key.split('-')
                 ArchiveModel(
                     date = LocalDate.of(year.toInt(), month.toInt(), 1),
-                    entries = it.value.map { entry -> Entry.wrapRow(entry).toModel() }
+                    entries = it.value.map { Entry.wrapRow(it) }.let { entries ->
+                        entries.map { entry ->
+                            entry.toModel(
+                                Tags.innerJoin(EntriesToTags)
+                                    .select { EntriesToTags.entryId eq entry.id }
+                                    .map { tag -> Tag.wrapRow(tag).toModel() }
+                            )
+                        }
+                    }
                 )
             }.let { ArchiveWrapperModel(archives = it) }
         }
@@ -81,7 +130,7 @@ class ExposedEntriesRepository : EntriesRepository {
         transaction {
             Entries.upsert {
                 it[id] = entry.id
-                it[slug] = entry.slug
+                it[slug] = entry.slug!!
                 it[permalink] = entry.permalink
                 it[title] = entry.title
                 it[draft] = entry.draft
@@ -90,8 +139,33 @@ class ExposedEntriesRepository : EntriesRepository {
                 it[summary] = entry.summary
             }.resultedValues!!
                 .single()
-                .let {
-                    Entry.wrapRow(it).toModel()
+                .also {
+                    if (entry.metadata != null) {
+                        if (entry.metadata.isNotEmpty()) {
+                            batchUpsertMetadata(entry.id, entry.metadata)
+                        }
+                        if (entry.tags.isNotEmpty()) {
+                            entry.tags.forEach { tag ->
+                                Tags.upsert {
+                                    it[id] = tag.id
+                                    it[term] = tag.term
+                                    it[permalink] = tag.permalink
+                                }
+                                EntriesToTags.upsert {
+                                    it[entryId] = entry.id
+                                    it[tagId] = tag.id
+                                }
+                            }
+                        }
+                    }
+                }
+                .let { row ->
+                    Entry.wrapRow(row)
+                        .toModel(
+                            Tags.innerJoin(EntriesToTags)
+                                .select { EntriesToTags.entryId eq row[Entries.id] }
+                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                        )
                 }
         }
 
@@ -100,11 +174,16 @@ class ExposedEntriesRepository : EntriesRepository {
             Entries.upsert {
                 it[id] = entryId
                 it[draft] = false
-                it[publishedAt] = Instant.now()
+                it[publishedAt] = OffsetDateTime.now().toInstant()
             }.resultedValues!!
                 .single()
-                .let {
-                    Entry.wrapRow(it).toModel()
+                .let { row ->
+                    Entry.wrapRow(row)
+                        .toModel(
+                            Tags.innerJoin(EntriesToTags)
+                                .select { EntriesToTags.entryId eq row[Entries.id] }
+                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                        )
                 }
         }
 
@@ -113,12 +192,14 @@ class ExposedEntriesRepository : EntriesRepository {
             this[EntriesMetadata.id] = it.id
             this[EntriesMetadata.key] = it.key
             this[EntriesMetadata.value] = it.value
-            this[EntriesMetadata.entry] = entryId
+            this[EntriesMetadata.entryId] = entryId
         }
     }
 
     override fun deleteEntry(entryId: UUID) {
-        transaction { Entries.deleteWhere { Entries.id eq entryId } }
+        transaction {
+            Entries.deleteWhere { Entries.id eq entryId }
+        }
     }
 
     private fun List<EntryModel>.toEntryWrapper(): EntryWrapperModel = EntryWrapperModel(entries = this)
