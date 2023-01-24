@@ -6,7 +6,6 @@ data class ArchiveModel(
     val date: LocalDate,
     val year: Int? = date.year,
     val month: Int? = date.month.value,
-    val day: Int? = date.dayOfMonth,
-    val monthYear: String? = "${date.year}-${date.month.value}", // "2022-01" sortable
+    val monthYear: String? = "${date.year}-${date.month.value.toString().padStart(2, '0')}", // "2022-01" sortable
     val entries: List<EntryModel>
 )

@@ -7,7 +7,7 @@ import java.util.UUID
 data class EntryModel(
     val id: UUID,
     val title: String,
-    val slug: String = title.slugify(),
+    val slug: String? = title.slugify(),
     val permalink: String,
     val draft: Boolean = true,
     val createdAt: OffsetDateTime? = null,
@@ -17,5 +17,5 @@ data class EntryModel(
     val content: String,
     val summary: String? = null,
     val tags: List<TagModel>,
-    val metadata: List<EntryMetadataModel>
+    val metadata: List<EntryMetadataModel>? = null
 )
