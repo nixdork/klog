@@ -78,7 +78,7 @@ internal fun insertEntry(entry: EntryModel) {
     transaction {
         Entries.insert {
             it[id] = entry.id
-            it[slug] = entry.slug
+            it[slug] = entry.slug!!
             it[permalink] = entry.permalink
             it[title] = entry.title
             it[draft] = entry.draft
@@ -87,7 +87,7 @@ internal fun insertEntry(entry: EntryModel) {
             it[content] = entry.content
             it[summary] = entry.summary
         }
-        entry.metadata.forEach { metadata ->
+        entry.metadata?.forEach { metadata ->
             EntriesMetadata.insert {
                 it[id] = metadata.id
                 it[entryId] = metadata.entryId
