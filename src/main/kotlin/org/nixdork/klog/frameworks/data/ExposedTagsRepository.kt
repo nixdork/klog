@@ -14,12 +14,14 @@ import java.util.UUID
 
 @Component
 class ExposedTagsRepository : TagsRepository {
-    override fun getAllTags(): TagWrapperModel = transaction { TagWrapperModel(Tag.all().map { it.toModel() }) }
+    override fun getAllTags(): TagWrapperModel =
+        transaction { TagWrapperModel(Tag.all().map { it.toModel() }) }
 
     override fun getTagByTerm(term: String): TagModel? =
         transaction { Tag.find(Tags.term eq term).singleOrNull()?.toModel() }
 
-    override fun getTagById(id: UUID): TagModel? = transaction { Tag.findById(id)?.toModel() }
+    override fun getTagById(id: UUID): TagModel? =
+        transaction { Tag.findById(id)?.toModel() }
 
     override fun upsertTag(tag: TagModel): TagModel =
         transaction {

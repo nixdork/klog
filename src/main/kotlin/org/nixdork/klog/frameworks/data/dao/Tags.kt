@@ -11,6 +11,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 
+
 object Tags : UUIDTable("tag") {
     val term = text("term")
     val permalink = text("permalink")
@@ -26,14 +27,11 @@ class Tag(id: EntityID<UUID>): UUIDEntity(id) {
     var createdAt by Tags.createdAt
     var updatedAt by Tags.updatedAt
 
-    var entries by Entry via EntriesToTags
-
     fun toModel(): TagModel =
         TagModel(
             id = this.id.value,
             term = this.term,
             permalink = this.permalink,
-            entries = this.entries.map { it.toModel() },
             createdAt = this.createdAt.toOffsetDateTime(),
             updatedAt = this.updatedAt?.toOffsetDateTime()
         )
