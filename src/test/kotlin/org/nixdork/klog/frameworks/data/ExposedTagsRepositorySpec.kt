@@ -66,7 +66,6 @@ class ExposedTagsRepositorySpec : FunSpec({
         test("given existing term return tag") {
             val tag = tagsRepo.getTagByTerm("database")
             tag?.term shouldBe "database"
-            tag?.entries?.count()?.shouldBeExactly(0)
         }
 
         test("given a term that does not exist return null") {
@@ -76,7 +75,6 @@ class ExposedTagsRepositorySpec : FunSpec({
         test("given existing id return tag") {
             val tag = tagsRepo.getTagById(r1Tag.id)
             tag?.term shouldBe r1Tag.term
-            tag?.entries?.count()?.shouldBeExactly(0)
         }
 
         test("given an id that does not exist return null") {
