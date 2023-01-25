@@ -1,7 +1,13 @@
-package org.nixdork.klog.frameworks.data
+package org.nixdork.klog.frameworks.data.config
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import org.nixdork.klog.common.DATASOURCE_CONNECTION_TIMEOUT
+import org.nixdork.klog.common.DATASOURCE_KEEP_ALIVE_TIME
+import org.nixdork.klog.common.DATASOURCE_LEAK_DETECTION_THRESHOLD
+import org.nixdork.klog.common.DATASOURCE_MAX_LIFETIME
+import org.nixdork.klog.common.DATASOURCE_MAX_POOL_SIZE
+import org.nixdork.klog.common.DATASOURCE_VALIDATION_TIMEOUT
 import java.time.Duration
 
 @Suppress("LongParameterList")
@@ -75,10 +81,10 @@ class ShutdownHookHikariDataSource(
 
 data class HikariCPConfig(
     val autoCommit: Boolean = false,
-    val connectionTimeout: Long = Duration.ofSeconds(30).toMillis(),
-    val keepaliveTime: Long = Duration.ofSeconds(0).toMillis(),
-    val maxLifetime: Long = Duration.ofMinutes(30).toMillis(),
-    val maximumPoolSize: Int = 10,
-    val leakDetectionThreshold: Long = Duration.ofSeconds(10).toMillis(),
-    val validationTimeout: Long = Duration.ofSeconds(5).toMillis(),
+    val connectionTimeout: Long = Duration.ofSeconds(DATASOURCE_CONNECTION_TIMEOUT).toMillis(),
+    val keepaliveTime: Long = Duration.ofSeconds(DATASOURCE_KEEP_ALIVE_TIME).toMillis(),
+    val maxLifetime: Long = Duration.ofMinutes(DATASOURCE_MAX_LIFETIME).toMillis(),
+    val maximumPoolSize: Int = DATASOURCE_MAX_POOL_SIZE,
+    val leakDetectionThreshold: Long = Duration.ofSeconds(DATASOURCE_LEAK_DETECTION_THRESHOLD).toMillis(),
+    val validationTimeout: Long = Duration.ofSeconds(DATASOURCE_VALIDATION_TIMEOUT).toMillis(),
 )

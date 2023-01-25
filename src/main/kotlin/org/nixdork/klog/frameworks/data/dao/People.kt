@@ -4,19 +4,20 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.nixdork.klog.adapters.model.PersonModel
-import java.util.UUID
 import org.jetbrains.exposed.sql.javatime.timestamp
-import org.nixdork.klog.adapters.model.PersonPasswordModel
+import org.nixdork.klog.adapters.model.PersonModel
+import org.nixdork.klog.adapters.model.VerifyLoginModel
 import org.nixdork.klog.common.PgEnum
 import org.nixdork.klog.common.Roles
 import org.nixdork.klog.common.toOffsetDateTime
+import java.time.OffsetDateTime
+import java.util.UUID
 
 object People : UUIDTable("person") {
-    val name = text("name")
+    val name = text("name").nullable()
     val email = text("email")
-    val hash = text("hash")
-    val salt = text("salt")
+    val hash = text("hash").nullable()
+    val salt = text("salt").nullable()
     val pwat = timestamp("pwat").nullable()
     val role = customEnumeration("role",
         "klog_role",
@@ -26,7 +27,7 @@ object People : UUIDTable("person") {
     val uri = text("uri").nullable()
     val avatar = text("avatar").nullable()
     val lastLoginAt = timestamp("last_login_at").nullable()
-    val createdAt = timestamp("created_at")
+    val createdAt = timestamp("created_at").default(OffsetDateTime.now().toInstant())
     val updatedAt = timestamp("updated_at").nullable()
 }
 
@@ -59,15 +60,13 @@ class Person(id: EntityID<UUID>): UUIDEntity(id) {
             updatedAt = this.updatedAt?.toOffsetDateTime()
         )
 
-    fun toPasswordModel(): PersonPasswordModel =
-        PersonPasswordModel(
+    fun toVerifyLoginModel(): VerifyLoginModel =
+        VerifyLoginModel(
             id = this.id.value,
             email = this.email,
             hash = this.hash,
             salt = this.salt,
-            passwordAt = this.pwat?.toOffsetDateTime(),
             role = this.role,
-            lastLoginAt = this.lastLoginAt?.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime()
+            lastLoginAt = this.lastLoginAt?.toOffsetDateTime()
         )
 }

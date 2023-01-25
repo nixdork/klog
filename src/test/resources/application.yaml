@@ -1,0 +1,16 @@
+service:
+  name: klog
+  environment: development
+
+klog:
+  title: "Klog"
+  subtitle: "a bliki"
+  domain: "https://klog.example.com/"
+  primary_author: "Me Myself Andi"
+  generator: "klog, the bliki v0.0.1"
+  icon: "favicon.png"
+  logo: "logo.png"
+  style: "style.css"
+  rights: "&copy; MMXXIII by Me Myself Andi"
+  home_entries: 10
+  password_age: 90

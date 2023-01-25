@@ -1,3 +1,10 @@
+-- Schema
+create schema "klog";
+grant all on schema "klog" to "postgres";
+set search_path to "klog";
+show search_path;
+
+----
 create type klog_role as enum ('CONTRIBUTOR', 'ADMIN');
 -- contributor can edit own entries + person
 -- admin = full control
@@ -5,7 +12,7 @@ create type klog_role as enum ('CONTRIBUTOR', 'ADMIN');
 create table if not exists person
 (
     id            uuid primary key not null,
-    "name"        text             not null,
+    "name"        text,
     email         text             not null,
     "hash"        text,      -- hex encoded
     salt          text,      -- hex encoded
