@@ -3,20 +3,20 @@ package org.nixdork.klog.util
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.Spec
 import io.kotest.extensions.testcontainers.SharedJdbcDatabaseContainerExtension
-import io.mockk.core.ValueClassSupport.boxedValue
 import java.time.OffsetDateTime
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.nixdork.klog.adapters.model.EntryModel
 import org.nixdork.klog.adapters.model.PersonModel
 import org.nixdork.klog.adapters.model.TagModel
+import org.nixdork.klog.common.upsert
 import org.nixdork.klog.frameworks.data.dao.Entries
 import org.nixdork.klog.frameworks.data.dao.EntriesMetadata
 import org.nixdork.klog.frameworks.data.dao.EntriesToTags
 import org.nixdork.klog.frameworks.data.dao.People
+import org.nixdork.klog.frameworks.data.dao.Person
 import org.nixdork.klog.frameworks.data.dao.Tags
 import org.testcontainers.containers.PostgreSQLContainer
 
@@ -44,13 +44,15 @@ fun Spec.installPostgres() {
             TransactionManager.current().connection
                 .prepareStatement("truncate ${tables.joinToString(", ")};", false)
                 .executeUpdate()
+            val people = People.slice(People.email).selectAll().map { Person.wrapRow(it).toModel() }
+            assert(people.size == 0)
         }
     }
 }
 
 internal fun insertTag(tag: TagModel) {
     transaction {
-        Tags.insert {
+        Tags.upsert {
             it[id] = tag.id
             it[term] = tag.term
             it[permalink] = tag.permalink
@@ -60,7 +62,7 @@ internal fun insertTag(tag: TagModel) {
 
 internal fun insertPerson(person: PersonModel, salt: String, hash: String) {
     transaction {
-        People.insert {
+        People.upsert {
             it[id] = person.id
             it[email] = person.email
             it[name] = person.name
@@ -76,7 +78,7 @@ internal fun insertPerson(person: PersonModel, salt: String, hash: String) {
 
 internal fun insertEntry(entry: EntryModel) {
     transaction {
-        Entries.insert {
+        Entries.upsert {
             it[id] = entry.id
             it[slug] = entry.slug!!
             it[permalink] = entry.permalink
@@ -88,7 +90,7 @@ internal fun insertEntry(entry: EntryModel) {
             it[summary] = entry.summary
         }
         entry.metadata?.forEach { metadata ->
-            EntriesMetadata.insert {
+            EntriesMetadata.upsert {
                 it[id] = metadata.id
                 it[entryId] = metadata.entryId
                 it[key] = metadata.key
@@ -96,7 +98,7 @@ internal fun insertEntry(entry: EntryModel) {
             }
         }
         entry.tags.forEach { tag ->
-            EntriesToTags.insert {
+            EntriesToTags.upsert {
                 it[entryId] = entry.id
                 it[tagId] = tag.id
             }
