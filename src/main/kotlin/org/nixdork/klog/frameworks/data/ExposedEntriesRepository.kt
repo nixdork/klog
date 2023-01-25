@@ -196,9 +196,15 @@ class ExposedEntriesRepository : EntriesRepository {
         }
     }
 
-    override fun deleteEntry(entryId: UUID) {
+    override fun deleteEntryById(entryId: UUID) {
         transaction {
             Entries.deleteWhere { Entries.id eq entryId }
+        }
+    }
+
+    override fun deleteEntryBySlug(slug: String) {
+        transaction {
+            Entries.deleteWhere { Entries.slug eq slug }
         }
     }
 

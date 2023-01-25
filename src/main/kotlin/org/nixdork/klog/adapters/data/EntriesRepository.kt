@@ -19,5 +19,6 @@ interface EntriesRepository {
     fun publishEntry(entryId: UUID): EntryModel
     fun batchUpsertMetadata(entryId: UUID, metadata: List<EntryMetadataModel>)
 
-    fun deleteEntry(entryId: UUID)
+    fun deleteEntryById(entryId: UUID)
+    fun deleteEntryBySlug(slug: String)
 }
