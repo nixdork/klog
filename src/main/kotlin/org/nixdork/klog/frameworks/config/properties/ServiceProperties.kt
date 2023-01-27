@@ -7,7 +7,7 @@ import org.springframework.validation.annotation.Validated
 @ConfigurationProperties(prefix = "service")
 data class ServiceProperties(
     val name: String,
-    val environment: String
+    val environment: String,
 )
 
 @Validated
@@ -23,5 +23,5 @@ data class KlogProperties(
     val style: String,
     val rights: String,
     val homeEntries: Int,
-    val passwordAge: Int
+    val passwordAge: Int,
 )
