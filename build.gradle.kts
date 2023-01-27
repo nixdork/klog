@@ -95,16 +95,11 @@ configure<DetektExtension> {
 }
 
 configure<SpotlessExtension> {
-    val disabledRules = mapOf(
-        "ktlint_disabled_rules" to "filename,annotation,trailing-comma-on-call-site,trailing-comma-on-declaration-site"
-    )
-
     kotlin {
         targetExclude("**/generated/**")
-        ktlint().setUseExperimental(false).editorConfigOverride(disabledRules)
+        ktlint().setUseExperimental(false)
     }
-
-    kotlinGradle { ktlint().setUseExperimental(false).editorConfigOverride(disabledRules) }
+    kotlinGradle { ktlint().setUseExperimental(false) }
 }
 
 configure<TestLoggerExtension> {
@@ -134,10 +129,10 @@ tasks {
         configureEach {
             maxParallelForks = 1
             useJUnitPlatform()
-            testLogging {
-                setExceptionFormat("full")
-                setEvents(listOf("passed", "skipped", "failed", "standardOut", "standardError"))
-            }
+            // testLogging {
+            //     setExceptionFormat("full")
+            //     setEvents(listOf("passed", "skipped", "failed", "standardOut", "standardError"))
+            // }
         }
     }
 
