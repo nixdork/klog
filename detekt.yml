@@ -1,46 +1,111 @@
 build:
   maxIssues: 10
+  excludeCorrectable: false
   weights:
     complexity: 2
     comments: 0
+    # LongParameterList: 1
+    # style: 1
 
 config:
   validation: true
   warningsAsErrors: false
-
-console-reports:
-  active: true
-  exclude:
-    - 'ProjectStatisticsReport'
-    - 'ComplexityReport'
-    - 'FindingsReport'
-
-output-reports:
-  active: true
-  exclude:
-    - 'XmlOutputReport'
-    - 'HtmlOutputReport'
+  checkExhaustiveness: false
+  # when writing own rules with new properties, exclude the property path e.g.: 'my_rule_set,.*>.*>[my_property]'
+  excludes: ''
 
 processors:
   active: true
   exclude:
     - 'DetektProgressListener'
+    - 'KtFileCountProcessor'
+    - 'ProjectComplexityProcessor'
+    - 'ProjectCognitiveComplexityProcessor'
+  # - 'PackageCountProcessor'
+  # - 'ClassCountProcessor'
+  # - 'FunctionCountProcessor'
+  # - 'PropertyCountProcessor'
+  # - 'ProjectLLOCProcessor'
+  # - 'ProjectCLOCProcessor'
+  # - 'ProjectLOCProcessor'
+  # - 'ProjectSLOCProcessor'
+  # - 'LicenseHeaderLoaderExtension'
+
+console-reports:
+  active: true
+  exclude:
+     - 'ProjectStatisticsReport'
+     - 'ComplexityReport'
+     - 'NotificationReport'
+     - 'FindingsReport'
+     - 'FileBasedFindingsReport'
+  #  - 'LiteFindingsReport'
+
+output-reports:
+  active: true
+  exclude:
+    - 'TxtOutputReport'
+    - 'XmlOutputReport'
+    - 'HtmlOutputReport'
+    - 'MdOutputReport'
+  # - 'SarifOutputReport'
 
 # RULES
 comments:
-  active: false
+  active: true
+  AbsentOrWrongFileLicense:
+    active: false
+    licenseTemplateFile: 'license.template'
+    licenseTemplateIsRegex: false
+  CommentOverPrivateFunction:
+    active: false
+  CommentOverPrivateProperty:
+    active: false
+  DeprecatedBlockTag:
+    active: false
+  EndOfSentenceFormat:
+    active: false
+    endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
+  KDocReferencesNonPublicProperty:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+  OutdatedDocumentation:
+    active: false
+    matchTypeParameters: true
+    matchDeclarationsOrder: true
+    allowParamOnConstructorProperties: false
+  UndocumentedPublicClass:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+    searchInNestedClass: true
+    searchInInnerClass: true
+    searchInInnerObject: true
+    searchInInnerInterface: true
+    searchInProtectedClass: false
+  UndocumentedPublicFunction:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+    searchProtectedFunction: false
+  UndocumentedPublicProperty:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+    searchProtectedProperty: false
 
 complexity:
   active: true
+  CognitiveComplexMethod:
+    active: false
+    threshold: 15
   ComplexCondition:
     active: true
-    threshold: 6
+    threshold: 5
   ComplexInterface:
     active: true
     threshold: 16
     includeStaticDeclarations: false
     includePrivateDeclarations: false
-  ComplexMethod:
+    ignoreOverloaded: false
+  CyclomaticComplexMethod:
     active: true
     threshold: 16
     ignoreSingleWhenExpression: false
@@ -84,7 +149,7 @@ complexity:
     threshold: 6
   NestedScopeFunctions:
     active: true
-    threshold: 3
+    threshold: 6
     functions:
       - 'kotlin.apply'
       - 'kotlin.run'
@@ -96,7 +161,7 @@ complexity:
   StringLiteralDuplication:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
-    threshold: 5
+    threshold: 6
     ignoreAnnotation: true
     excludeStringsWithLessThan5Characters: true
     ignoreStringsRegex: '$^'
@@ -331,6 +396,8 @@ performance:
   SpreadOperator:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+  UnnecessaryPartOfBinaryExpression:
+    active: false
   UnnecessaryTemporaryInstantiation:
     active: true
 
@@ -340,6 +407,8 @@ potential-bugs:
     active: true
     forbiddenTypePatterns:
       - 'kotlin.String'
+  #CastNullableToNonNullableType:
+  #  active: false
   CastToNullableType:
     active: false
   Deprecation:
@@ -371,11 +440,19 @@ potential-bugs:
     active: false
   IgnoredReturnValue:
     active: true
+    restrictToConfig: true
     returnValueAnnotations:
+      - 'CheckResult'
       - '*.CheckResult'
+      - 'CheckReturnValue'
       - '*.CheckReturnValue'
     ignoreReturnValueAnnotations:
+      - 'CanIgnoreReturnValue'
       - '*.CanIgnoreReturnValue'
+    returnValueTypes:
+      - 'kotlin.sequences.Sequence'
+      - 'kotlinx.coroutines.flow.*Flow'
+      - 'java.util.stream.*Stream'
     ignoreFunctionCall: []
   ImplicitDefaultLocale:
     active: true
@@ -403,6 +480,8 @@ potential-bugs:
     active: false
   UnconditionalJumpStatementInLoop:
     active: false
+  UnnecessaryNotNullCheck:
+    active: false
   UnnecessaryNotNullOperator:
     active: true
   UnnecessarySafeCall:
@@ -425,6 +504,8 @@ potential-bugs:
 
 style:
   active: true
+  AlsoCouldBeApply:
+    active: false
   CanBeNonNullable:
     active: false
   CascadingCallWrapping:
@@ -438,6 +519,7 @@ style:
     active: true
     conversionFunctionPrefix:
       - 'to'
+    #allowOperators: false
   DataClassShouldBeImmutable:
     active: true
   DestructuringDeclarationWithTooManyEntries:
@@ -454,6 +536,23 @@ style:
   ExpressionBodySyntax:
     active: false
     includeLineWrapping: false
+  #ForbiddenAnnotation:
+  #  active: false
+  #  annotations:
+  #    - reason: 'it is a java annotation. Use `Suppress` instead.'
+  #      value: 'java.lang.SuppressWarnings'
+  #    - reason: 'it is a java annotation. Use `kotlin.Deprecated` instead.'
+  #      value: 'java.lang.Deprecated'
+  #    - reason: 'it is a java annotation. Use `kotlin.annotation.MustBeDocumented` instead.'
+  #      value: 'java.lang.annotation.Documented'
+  #    - reason: 'it is a java annotation. Use `kotlin.annotation.Target` instead.'
+  #      value: 'java.lang.annotation.Target'
+  #    - reason: 'it is a java annotation. Use `kotlin.annotation.Retention` instead.'
+  #      value: 'java.lang.annotation.Retention'
+  #    - reason: 'it is a java annotation. Use `kotlin.annotation.Repeatable` instead.'
+  #      value: 'java.lang.annotation.Repeatable'
+  #    - reason: 'Kotlin does not support @Inherited annotation, see https://youtrack.jetbrains.com/issue/KT-22265'
+  #      value: 'java.lang.annotation.Inherited'
   ForbiddenComment:
     active: false
     values:
@@ -469,14 +568,10 @@ style:
   ForbiddenMethodCall:
     active: false
     methods:
-      - 'kotlin.io.print'
-      - 'kotlin.io.println'
-  ForbiddenPublicDataClass:
-    active: true
-    excludes: ['**']
-    ignorePackages:
-      - '*.internal'
-      - '*.internal.*'
+      - reason: 'print does not allow you to configure the output stream. Use a logger instead.'
+        value: 'kotlin.io.print'
+      - reason: 'println does not allow you to configure the output stream. Use a logger instead.'
+        value: 'kotlin.io.println'
   ForbiddenSuppress:
     active: false
     rules: []
@@ -488,20 +583,13 @@ style:
     active: true
     ignoreOverridableFunction: true
     ignoreActualFunction: true
-    excludedFunctions:
-      - ''
-  LibraryCodeMustSpecifyReturnType:
-    active: true
-    excludes: ['**']
-  LibraryEntitiesShouldNotBePublic:
-    active: true
-    excludes: ['**']
+    excludedFunctions: []
   LoopWithTooManyJumpStatements:
     active: true
     maxJumpCount: 3
   MagicNumber:
     active: true
-    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts']
     ignoreNumbers: ['-1', '0', '1', '2', '3', '4', '5', '10', '100', '1000']
     ignoreHashCodeFunction: true
     ignorePropertyDeclaration: false
@@ -517,18 +605,25 @@ style:
     active: true
   MandatoryBracesLoops:
     active: true
+  MaxChainedCallsOnSameLine:
+    active: false
+    maxChainedCalls: 5
   MaxLineLength:
     active: true
     maxLineLength: 120
     excludePackageStatements: true
     excludeImportStatements: true
     excludeCommentStatements: false
+    excludeRawStrings: true
   MayBeConst:
     active: true
   ModifierOrder:
     active: true
   MultilineLambdaItParameter:
     active: false
+  MultilineRawStringIndentation:
+    active: false
+    indentSize: 4
   NestedClassesVisibility:
     active: true
   NewLineAtEndOfFile:
@@ -575,6 +670,8 @@ style:
     excludeGuardClauses: false
   TrailingWhitespace:
     active: true
+  TrimMultilineRawString:
+    active: false
   UnderscoresInNumericLiterals:
     active: true
     acceptableLength: 4
@@ -597,6 +694,7 @@ style:
     active: true
   UnnecessaryParentheses:
     active: false
+    allowForUnclearPrecedence: false
   UntilInsteadOfRangeTo:
     active: true
   UnusedImports:
@@ -623,6 +721,7 @@ style:
     active: true
   UseIfInsteadOfWhen:
     active: false
+    #ignoreWhenContainingVariableDeclaration: false
   UseIsNullOrEmpty:
     active: true
   UseOrEmpty:
@@ -631,6 +730,8 @@ style:
     active: true
   UseRequireNotNull:
     active: true
+  UseSumOfInsteadOfFlatMapSize:
+    active: false
   UselessCallOnNotNull:
     active: true
   UtilityClassWithPublicConstructor:
