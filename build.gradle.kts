@@ -36,14 +36,14 @@ dependencies {
     implementation("com.zaxxer:HikariCP")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
     implementation("javax.validation:validation-api:2.0.1.Final")
-    //implementation("org.flywaydb:flyway-core")
+    // implementation("org.flywaydb:flyway-core")
     implementation("org.jetbrains.exposed:exposed-core:0.41.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.41.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.41.1")
     implementation("org.jetbrains.exposed:exposed-java-time:0.41.1")
     implementation("org.jetbrains:annotations:13.0")
     implementation("org.postgresql:postgresql:42.5.1")
-    //implementation("org.springframework.boot:spring-boot-starter-webflux")
+    // implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-autoconfigure:3.0.1")
     implementation("org.springframework.boot:spring-boot:3.0.1")
     implementation("org.springframework:spring-context:6.0.3")
@@ -51,7 +51,7 @@ dependencies {
     implementation("org.springframework:spring-webflux:6.0.3")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    //annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    // annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     // testImplementation("")
     testImplementation("io.github.serpro69:kotlin-faker:1.13.0")
@@ -140,10 +140,10 @@ tasks {
         configureEach {
             jvmTarget = "17"
             reports {
-                html.required.set(true) // observe findings in your browser with structure and code snippets
-                xml.required.set(false) // checkstyle like format mainly for integrations like Jenkins
-                txt.required.set(false) // similar to the console output, contains issue signature to manually edit baseline files
-                sarif.required.set(true) // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with Github Code Scanning
+                html.required.set(true)
+                xml.required.set(false)
+                txt.required.set(false)
+                sarif.required.set(true)
             }
         }
     }
