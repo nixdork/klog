@@ -17,7 +17,7 @@ fun buildLogMessage(message: String, list: List<Pair<String, Any?>> = emptyList(
         if (list.isNotEmpty()) {
             append(" ")
             append(
-                list.joinToString(separator = ", ", prefix = "[", postfix = "]") { (name, value) -> "$name: $value" }
+                list.joinToString(separator = ", ", prefix = "[", postfix = "]") { (name, value) -> "$name: $value" },
             )
         }
     }
