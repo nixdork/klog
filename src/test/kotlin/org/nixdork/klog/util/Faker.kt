@@ -44,7 +44,7 @@ fun Faker.createAdmin(uuid: UUID = UUID.randomUUID()) =
         email = "jgorauskas@gmail.com",
         role = Roles.ADMIN,
         uri = "https://nixdork.org",
-        avatar = "jonasg.png"
+        avatar = "jonasg.png",
     )
 
 fun Faker.createRandomAuthor() = this.createRandomAdmin().copy(role = Roles.CONTRIBUTOR)
@@ -59,19 +59,19 @@ fun Faker.createRandomPassword(uuid: UUID = UUID.randomUUID(), email: String) =
             auxiliaryChars = true,
             punctuationChars = true,
             numericalChars = true,
-        )
+        ),
     )
 
 fun Faker.createPassword(uuid: UUID = UUID.randomUUID()) =
     PasswordCreateResetModel(
         id = uuid,
         email = "jgorauskas@gmail.com",
-        newPassword = "abcdef1234567890"
+        newPassword = "abcdef1234567890",
     )
 
 fun Faker.resetRandomPassword(
     uuid: UUID = UUID.randomUUID(),
-    currentPassword: String
+    currentPassword: String,
 ): PasswordCreateResetModel =
     PasswordCreateResetModel(
         id = uuid,
@@ -83,7 +83,7 @@ fun Faker.resetRandomPassword(
             auxiliaryChars = true,
             punctuationChars = true,
             numericalChars = true,
-        )
+        ),
     )
 
 fun Faker.resetPassword(uuid: UUID = UUID.randomUUID()) =
@@ -110,7 +110,7 @@ fun Faker.createLogin(pwd: PasswordCreateResetModel) =
 fun Faker.createRandomEntry(
     author: PersonModel,
     tags: List<TagModel>,
-    howManyMetadata: Int? = 2
+    howManyMetadata: Int? = 2,
 ): EntryModel {
     val uuid = UUID.randomUUID()
     val metadata = this.createRandomMetadata(howManyMetadata!!, uuid)
@@ -126,7 +126,7 @@ fun Faker.createRandomEntry(
         content = faker.generateParagraphs(),
         summary = summarize(faker.generateParagraphs()),
         tags = tags,
-        metadata = metadata
+        metadata = metadata,
     )
 }
 
@@ -148,7 +148,7 @@ internal fun Faker.createRandomMetadata(howMany: Int, entryId: UUID) =
                 auxiliaryChars = true,
                 punctuationChars = true,
                 numericalChars = true,
-            )
+            ),
         )
     }
 
@@ -157,7 +157,7 @@ internal fun Faker.generateParagraphs(
     minSentencesPerParagraph: Int = 3,
     maxSentencesPerParagraph: Int = 5,
     minWordsPerSentence: Int = 5,
-    maxWordsPerSentence: Int = 10
+    maxWordsPerSentence: Int = 10,
 ): String {
     return (0 until howManyParagraphs).map {
         val howManySentencesPerParagraph = (minSentencesPerParagraph..maxSentencesPerParagraph).random()

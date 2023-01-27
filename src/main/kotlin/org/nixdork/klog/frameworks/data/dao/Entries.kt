@@ -54,6 +54,6 @@ class Entry(id: EntityID<UUID>) : UUIDEntity(id) {
             content = this.content,
             summary = this.summary,
             tags = tags,
-            metadata = this.metadata.map { it.toModel() }
+            metadata = this.metadata.map { it.toModel() },
         )
 }

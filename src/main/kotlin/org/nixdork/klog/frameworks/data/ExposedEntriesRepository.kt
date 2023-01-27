@@ -38,7 +38,7 @@ class ExposedEntriesRepository : EntriesRepository {
                         .toModel(
                             Tags.innerJoin(EntriesToTags)
                                 .select { EntriesToTags.entryId eq entry[Entries.id] }
-                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                                .map { tag -> Tag.wrapRow(tag).toModel() },
                         )
                 }
         }.toEntryWrapper()
@@ -50,7 +50,7 @@ class ExposedEntriesRepository : EntriesRepository {
                     entry.toModel(
                         Tags.innerJoin(EntriesToTags)
                             .select { EntriesToTags.entryId eq entry.id }
-                            .map { tag -> Tag.wrapRow(tag).toModel() }
+                            .map { tag -> Tag.wrapRow(tag).toModel() },
                     )
                 }.toEntryWrapper()
         }
@@ -63,7 +63,7 @@ class ExposedEntriesRepository : EntriesRepository {
                     entry.toModel(
                         Tags.innerJoin(EntriesToTags)
                             .select { EntriesToTags.entryId eq entry.id }
-                            .map { tag -> Tag.wrapRow(tag).toModel() }
+                            .map { tag -> Tag.wrapRow(tag).toModel() },
                     )
                 }
         }
@@ -74,7 +74,7 @@ class ExposedEntriesRepository : EntriesRepository {
                 entry.toModel(
                     Tags.innerJoin(EntriesToTags)
                         .select { EntriesToTags.entryId eq entry.id }
-                        .map { tag -> Tag.wrapRow(tag).toModel() }
+                        .map { tag -> Tag.wrapRow(tag).toModel() },
                 )
             }
         }
@@ -91,13 +91,13 @@ class ExposedEntriesRepository : EntriesRepository {
                         entry.toModel(
                             Tags.innerJoin(EntriesToTags)
                                 .select { EntriesToTags.entryId eq entry.id }
-                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                                .map { tag -> Tag.wrapRow(tag).toModel() },
                         )
                     }
                 }
             TagToEntriesWrapperModel(
                 tag = tag,
-                entries = entries
+                entries = entries,
             )
         }
 
@@ -118,10 +118,10 @@ class ExposedEntriesRepository : EntriesRepository {
                             entry.toModel(
                                 Tags.innerJoin(EntriesToTags)
                                     .select { EntriesToTags.entryId eq entry.id }
-                                    .map { tag -> Tag.wrapRow(tag).toModel() }
+                                    .map { tag -> Tag.wrapRow(tag).toModel() },
                             )
                         }
-                    }
+                    },
                 )
             }.let { ArchiveWrapperModel(archives = it) }
         }
@@ -164,7 +164,7 @@ class ExposedEntriesRepository : EntriesRepository {
                         .toModel(
                             Tags.innerJoin(EntriesToTags)
                                 .select { EntriesToTags.entryId eq row[Entries.id] }
-                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                                .map { tag -> Tag.wrapRow(tag).toModel() },
                         )
                 }
         }
@@ -182,7 +182,7 @@ class ExposedEntriesRepository : EntriesRepository {
                         .toModel(
                             Tags.innerJoin(EntriesToTags)
                                 .select { EntriesToTags.entryId eq row[Entries.id] }
-                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                                .map { tag -> Tag.wrapRow(tag).toModel() },
                         )
                 }
         }

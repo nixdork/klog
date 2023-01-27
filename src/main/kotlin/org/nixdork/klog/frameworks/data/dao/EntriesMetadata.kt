@@ -35,6 +35,6 @@ class EntryMetadata(id: EntityID<UUID>) : UUIDEntity(id) {
             key = this.key,
             value = this.value,
             createdAt = this.createdAt.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime()
+            updatedAt = this.updatedAt?.toOffsetDateTime(),
         )
 }

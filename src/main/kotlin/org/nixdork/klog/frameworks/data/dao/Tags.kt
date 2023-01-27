@@ -32,6 +32,6 @@ class Tag(id: EntityID<UUID>) : UUIDEntity(id) {
             term = this.term,
             permalink = this.permalink,
             createdAt = this.createdAt.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime()
+            updatedAt = this.updatedAt?.toOffsetDateTime(),
         )
 }

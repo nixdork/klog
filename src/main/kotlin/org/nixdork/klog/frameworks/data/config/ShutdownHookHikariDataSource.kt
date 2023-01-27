@@ -13,7 +13,7 @@ import java.time.Duration
 @Suppress("LongParameterList")
 class ShutdownHookHikariDataSource(
     private val shutdownHooks: List<Runnable>,
-    config: HikariConfig
+    config: HikariConfig,
 ) : HikariDataSource(config) {
     override fun close() {
         shutdownHooks.forEach(Runnable::run)
@@ -50,7 +50,7 @@ class ShutdownHookHikariDataSource(
                 maxLifetime,
                 maximumPoolSize,
                 leakDetectionThreshold,
-                validationTimeout
+                validationTimeout,
             ).let {
                 ShutdownHookHikariDataSource(shutdownHooks, build(config, it, properties))
             }
