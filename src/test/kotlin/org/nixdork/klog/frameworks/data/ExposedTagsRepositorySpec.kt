@@ -5,7 +5,6 @@ import io.kotest.matchers.date.shouldHaveSameDayAs
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import java.util.UUID
 import org.nixdork.klog.adapters.model.TagModel
 import org.nixdork.klog.util.createDatabaseTag
 import org.nixdork.klog.util.createKotlinTag
@@ -13,6 +12,7 @@ import org.nixdork.klog.util.createRandomTag
 import org.nixdork.klog.util.faker
 import org.nixdork.klog.util.insertTag
 import org.nixdork.klog.util.installPostgres
+import java.util.UUID
 
 class ExposedTagsRepositorySpec : FunSpec({
     installPostgres()
