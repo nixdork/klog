@@ -1,6 +1,14 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.adarshr.gradle.testlogger.TestLoggerExtension
 import com.adarshr.gradle.testlogger.theme.ThemeType
-import java.util.*
+import com.diffplug.gradle.spotless.SpotlessExtension
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.concurrent.TimeUnit
+
+group = "org.nixdork"
+version = "0.0.1"
 
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.8.0"
@@ -9,28 +17,8 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("com.adarshr.test-logger") version "3.2.0"
     id("com.faire.gradle.analyze") version "1.0.9"
-}
-
-group = "org.nixdork"
-version = "0.0.1"
-java.sourceCompatibility = JavaVersion.VERSION_17
-
-configurations {
-    compileOnly {
-        extendsFrom(configurations.annotationProcessor.get())
-    }
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
-    }
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    systemProperty("random.testing.seed", Random().nextInt())
+    id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("com.diffplug.spotless") version "6.14.0"
 }
 
 repositories {
@@ -79,9 +67,47 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.17.6")
     testImplementation("org.testcontainers:testcontainers:1.17.6")
     testImplementation("org.testcontainers:jdbc:1.17.6")
+
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
 }
 
-testlogger {
+val jvmVersion = 17
+kotlin { jvmToolchain(jvmVersion) }
+
+configurations {
+    compileOnly {
+        extendsFrom(configurations.annotationProcessor.get())
+    }
+
+    all {
+        if (isKotlinJvm) {
+            resolutionStrategy.cacheChangingModulesFor(0, TimeUnit.SECONDS)
+            resolutionStrategy.cacheDynamicVersionsFor(0, TimeUnit.SECONDS)
+        }
+    }
+}
+
+configure<DetektExtension> {
+    buildUponDefaultConfig = true // preconfigure defaults
+    allRules = false // activate all available (even unstable) rules.
+    config = files("${rootDir.path}/detekt.yml")
+    source = files("src/main/kotlin", "src/test/kotlin")
+}
+
+configure<SpotlessExtension> {
+    val disabledRules = mapOf(
+        "ktlint_disabled_rules" to "filename,annotation,trailing-comma-on-call-site,trailing-comma-on-declaration-site"
+    )
+
+    kotlin {
+        targetExclude("**/generated/**")
+        ktlint().setUseExperimental(false).editorConfigOverride(disabledRules)
+    }
+
+    kotlinGradle { ktlint().setUseExperimental(false).editorConfigOverride(disabledRules) }
+}
+
+configure<TestLoggerExtension> {
     theme = ThemeType.STANDARD // project level
     showCauses = true
     showExceptions = true
@@ -89,6 +115,82 @@ testlogger {
     showPassed = true
     showSkipped = true
     showStackTraces = true
+    showStandardStreams = false
     showSummary = true
     slowThreshold = 5000
 }
+
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
+            languageVersion = "1.8"
+            apiVersion = "1.8"
+            jvmTarget = jvmVersion.toString()
+        }
+    }
+
+    withType<Test> {
+        configureEach {
+            maxParallelForks = 1
+            useJUnitPlatform()
+            testLogging {
+                setExceptionFormat("full")
+                setEvents(listOf("passed", "skipped", "failed", "standardOut", "standardError"))
+            }
+        }
+    }
+
+    withType<Detekt> {
+        configureEach {
+            jvmTarget = "17"
+            reports {
+                html.required.set(true) // observe findings in your browser with structure and code snippets
+                xml.required.set(false) // checkstyle like format mainly for integrations like Jenkins
+                txt.required.set(false) // similar to the console output, contains issue signature to manually edit baseline files
+                sarif.required.set(true) // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with Github Code Scanning
+            }
+        }
+    }
+
+    withType<DetektCreateBaselineTask> {
+        configureEach {
+            jvmTarget = "17"
+        }
+    }
+
+    register("lint") { // runs "spotlessCheck"
+        group = "verification"
+        description = "Lint all code using configured linters. Runs 'spotlessCheck' "
+        dependsOn(named("spotlessCheck"))
+    }
+
+    register("ktlint") { // runs "spotlessKotlinCheck" and "spotlessKotlinGradleCheck"
+        group = "verification"
+        description = "Lint Kotlin code. Runs 'spotlessKotlinCheck' and 'spotlessKotlinGradleCheck'"
+        dependsOn(
+            named("spotlessKotlinCheck"),
+            named("spotlessKotlinGradleCheck"),
+        )
+    }
+
+    register("lintFormat") { // runs "spotlessApply"
+        group = "verification"
+        description = "Format all code using configured formatters. Runs 'spotlessApply' "
+        dependsOn(named("spotlessApply"))
+    }
+
+    register("ktlintFormat") { // runs "spotlessKotlinApply" and "spotlessKotlinGradleApply"
+        group = "verification"
+        description = "Format Kotlin code. Runs 'spotlessKotlinApply' and 'spotlessKotlinGradleApply'"
+        dependsOn(
+            named("spotlessKotlinApply"),
+            named("spotlessKotlinGradleApply"),
+        )
+    }
+
+    named("check") { dependsOn(named("detekt")) }
+}
+
+internal val Project.isKotlinJvm: Boolean
+    get() = pluginManager.hasPlugin("org.jetbrains.kotlin.jvm")
