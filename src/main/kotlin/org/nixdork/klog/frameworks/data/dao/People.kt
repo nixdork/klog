@@ -19,10 +19,11 @@ object People : UUIDTable("person") {
     val hash = text("hash").nullable()
     val salt = text("salt").nullable()
     val pwat = timestamp("pwat").nullable()
-    val role = customEnumeration("role",
+    val role = customEnumeration(
+        "role",
         "klog_role",
         { value -> Roles.valueOf(value.toString()) },
-        { role -> PgEnum("klog_role", role) }
+        { role -> PgEnum("klog_role", role) },
     )
     val uri = text("uri").nullable()
     val avatar = text("avatar").nullable()
@@ -31,7 +32,7 @@ object People : UUIDTable("person") {
     val updatedAt = timestamp("updated_at").nullable()
 }
 
-class Person(id: EntityID<UUID>): UUIDEntity(id) {
+class Person(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<Person>(People)
 
     var name by People.name
@@ -57,7 +58,7 @@ class Person(id: EntityID<UUID>): UUIDEntity(id) {
             avatar = this.avatar,
             lastLoginAt = this.lastLoginAt?.toOffsetDateTime(),
             createdAt = this.createdAt.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime()
+            updatedAt = this.updatedAt?.toOffsetDateTime(),
         )
 
     fun toVerifyLoginModel(): VerifyLoginModel =
@@ -67,6 +68,6 @@ class Person(id: EntityID<UUID>): UUIDEntity(id) {
             hash = this.hash,
             salt = this.salt,
             role = this.role,
-            lastLoginAt = this.lastLoginAt?.toOffsetDateTime()
+            lastLoginAt = this.lastLoginAt?.toOffsetDateTime(),
         )
 }

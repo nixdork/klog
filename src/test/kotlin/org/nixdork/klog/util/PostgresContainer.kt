@@ -3,7 +3,6 @@ package org.nixdork.klog.util
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.Spec
 import io.kotest.extensions.testcontainers.SharedJdbcDatabaseContainerExtension
-import java.time.OffsetDateTime
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.TransactionManager
@@ -19,6 +18,7 @@ import org.nixdork.klog.frameworks.data.dao.People
 import org.nixdork.klog.frameworks.data.dao.Person
 import org.nixdork.klog.frameworks.data.dao.Tags
 import org.testcontainers.containers.PostgreSQLContainer
+import java.time.OffsetDateTime
 
 private val tables = listOf("entry_metadata", "entry_to_tag", "entry", "tag", "person")
 

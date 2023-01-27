@@ -11,5 +11,5 @@ data class PersonLoginModel(
     val passwordAt: OffsetDateTime? = null,
     val role: Roles,
     val lastLoginAt: OffsetDateTime? = null,
-    val updatedAt: OffsetDateTime? = null
+    val updatedAt: OffsetDateTime? = null,
 )

@@ -26,7 +26,7 @@ class ApplicationConfiguration(
     fun serviceConfiguration(): ServiceConfiguration =
         ServiceConfiguration(
             name = serviceProperties.name,
-            environment = serviceProperties.environment
+            environment = serviceProperties.environment,
         )
 
     @Bean("objectMapper")
@@ -55,6 +55,6 @@ class ApplicationConfiguration(
             style = klogProperties.style,
             rights = klogProperties.rights,
             homeEntries = klogProperties.homeEntries,
-            passwordAge = klogProperties.passwordAge
+            passwordAge = klogProperties.passwordAge,
         )
 }

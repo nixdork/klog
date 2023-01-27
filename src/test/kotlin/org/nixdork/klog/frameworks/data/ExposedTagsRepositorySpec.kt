@@ -5,14 +5,12 @@ import io.kotest.matchers.date.shouldHaveSameDayAs
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.nixdork.klog.adapters.model.TagModel
-import org.nixdork.klog.frameworks.data.dao.Tags
 import org.nixdork.klog.util.createDatabaseTag
 import org.nixdork.klog.util.createKotlinTag
 import org.nixdork.klog.util.createRandomTag
 import org.nixdork.klog.util.faker
+import org.nixdork.klog.util.insertTag
 import org.nixdork.klog.util.installPostgres
 import java.util.UUID
 
@@ -29,32 +27,14 @@ class ExposedTagsRepositorySpec : FunSpec({
         tagsRepo = ExposedTagsRepository()
         (0..2).forEach {
             val tag = faker.createRandomTag()
-            transaction {
-                Tags.insert {
-                    it[id] = tag.id
-                    it[term] = tag.term
-                    it[permalink] = tag.permalink
-                }
-            }
+            insertTag(tag)
             if (it == 1) r1Tag = tag
             if (it == 2) r2Tag = tag
         }
         dbTag = faker.createDatabaseTag()
-        transaction {
-            Tags.insert {
-                it[id] = dbTag.id
-                it[term] = dbTag.term
-                it[permalink] = dbTag.permalink
-            }
-        }
+        insertTag(dbTag)
         ktTag = faker.createKotlinTag()
-        transaction {
-            Tags.insert {
-                it[id] = ktTag.id
-                it[term] = ktTag.term
-                it[permalink] = ktTag.permalink
-            }
-        }
+        insertTag(ktTag)
     }
 
     context("GET") {

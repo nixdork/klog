@@ -13,7 +13,7 @@ import java.time.Duration
 @Suppress("LongParameterList")
 class ShutdownHookHikariDataSource(
     private val shutdownHooks: List<Runnable>,
-    config: HikariConfig
+    config: HikariConfig,
 ) : HikariDataSource(config) {
     override fun close() {
         shutdownHooks.forEach(Runnable::run)
@@ -26,12 +26,12 @@ class ShutdownHookHikariDataSource(
             username: String,
             password: String,
             autoCommit: Boolean = false,
-            connectionTimeout: Long = Duration.ofSeconds(30).toMillis(),
-            keepaliveTime: Long = Duration.ofSeconds(0).toMillis(),
-            maxLifetime: Long = Duration.ofMinutes(30).toMillis(),
+            connectionTimeout: Long = Duration.ofSeconds(DATASOURCE_CONNECTION_TIMEOUT).toMillis(),
+            keepaliveTime: Long = Duration.ofSeconds(DATASOURCE_KEEP_ALIVE_TIME).toMillis(),
+            maxLifetime: Long = Duration.ofMinutes(DATASOURCE_MAX_LIFETIME).toMillis(),
             maximumPoolSize: Int = 10,
-            leakDetectionThreshold: Long = Duration.ofSeconds(10).toMillis(),
-            validationTimeout: Long = Duration.ofSeconds(5).toMillis(),
+            leakDetectionThreshold: Long = Duration.ofSeconds(DATASOURCE_LEAK_DETECTION_THRESHOLD).toMillis(),
+            validationTimeout: Long = Duration.ofSeconds(DATASOURCE_VALIDATION_TIMEOUT).toMillis(),
             properties: Map<String, String> = emptyMap(),
             shutdownHooks: List<Runnable> = emptyList(),
         ): ShutdownHookHikariDataSource {
@@ -50,7 +50,7 @@ class ShutdownHookHikariDataSource(
                 maxLifetime,
                 maximumPoolSize,
                 leakDetectionThreshold,
-                validationTimeout
+                validationTimeout,
             ).let {
                 ShutdownHookHikariDataSource(shutdownHooks, build(config, it, properties))
             }

@@ -5,18 +5,27 @@ import io.kotest.matchers.comparables.shouldNotBeGreaterThan
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import org.jetbrains.exposed.sql.select
 import org.nixdork.klog.adapters.model.EntryModel
 import org.nixdork.klog.adapters.model.PasswordCreateResetModel
 import org.nixdork.klog.adapters.model.PersonModel
 import org.nixdork.klog.adapters.model.TagModel
 import org.nixdork.klog.common.generateHash
 import org.nixdork.klog.common.generateSalt
+import org.nixdork.klog.frameworks.data.dao.EntriesMetadata
+import org.nixdork.klog.frameworks.data.dao.EntriesToTags
+import org.nixdork.klog.frameworks.data.dao.EntryMetadata
+import org.nixdork.klog.frameworks.data.dao.People
+import org.nixdork.klog.frameworks.data.dao.Person
+import org.nixdork.klog.frameworks.data.dao.Tag
+import org.nixdork.klog.frameworks.data.dao.Tags
 import org.nixdork.klog.util.createAdmin
 import org.nixdork.klog.util.createDatabaseTag
 import org.nixdork.klog.util.createKotlinTag
 import org.nixdork.klog.util.createPassword
 import org.nixdork.klog.util.createRandomAuthor
 import org.nixdork.klog.util.createRandomEntry
+import org.nixdork.klog.util.createRandomMetadata
 import org.nixdork.klog.util.createRandomPassword
 import org.nixdork.klog.util.faker
 import org.nixdork.klog.util.insertEntry
@@ -25,15 +34,6 @@ import org.nixdork.klog.util.insertTag
 import org.nixdork.klog.util.installPostgres
 import java.time.OffsetDateTime
 import java.util.UUID
-import org.jetbrains.exposed.sql.select
-import org.nixdork.klog.frameworks.data.dao.EntriesMetadata
-import org.nixdork.klog.frameworks.data.dao.EntriesToTags
-import org.nixdork.klog.frameworks.data.dao.EntryMetadata
-import org.nixdork.klog.frameworks.data.dao.People
-import org.nixdork.klog.frameworks.data.dao.Person
-import org.nixdork.klog.frameworks.data.dao.Tag
-import org.nixdork.klog.frameworks.data.dao.Tags
-import org.nixdork.klog.util.createRandomMetadata
 
 class ExposedEntriesRepositorySpec : FunSpec({
     installPostgres()

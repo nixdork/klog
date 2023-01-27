@@ -17,5 +17,3 @@ fun String.slugify(): String = Normalizer.normalize(this, Normalizer.Form.NFD)
 
 // A `kotlinx.datetime.Instant`
 fun Instant.toOffsetDateTime(): OffsetDateTime = OffsetDateTime.ofInstant(this, ZoneOffset.UTC)
-
-

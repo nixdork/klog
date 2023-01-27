@@ -7,9 +7,9 @@ import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.EntryMetadataModel
 import org.nixdork.klog.common.toOffsetDateTime
+import org.nixdork.klog.frameworks.data.dao.EntriesToTags.references
 import java.time.OffsetDateTime
 import java.util.UUID
-import org.nixdork.klog.frameworks.data.dao.EntriesToTags.references
 
 object EntriesMetadata : UUIDTable("entry_metadata") {
     val entryId = reference("entry_id", Entries)
@@ -19,7 +19,7 @@ object EntriesMetadata : UUIDTable("entry_metadata") {
     val updatedAt = timestamp("updated_at").nullable()
 }
 
-class EntryMetadata(id: EntityID<UUID>): UUIDEntity(id) {
+class EntryMetadata(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<EntryMetadata>(EntriesMetadata)
 
     var entryId by EntriesMetadata.entryId references Entries.id
@@ -35,6 +35,6 @@ class EntryMetadata(id: EntityID<UUID>): UUIDEntity(id) {
             key = this.key,
             value = this.value,
             createdAt = this.createdAt.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime()
+            updatedAt = this.updatedAt?.toOffsetDateTime(),
         )
 }

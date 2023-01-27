@@ -17,5 +17,5 @@ data class EntryModel(
     val content: String,
     val summary: String? = null,
     val tags: List<TagModel>,
-    val metadata: List<EntryMetadataModel>? = null
+    val metadata: List<EntryMetadataModel>? = null,
 )

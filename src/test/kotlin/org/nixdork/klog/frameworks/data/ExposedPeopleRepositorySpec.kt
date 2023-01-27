@@ -20,11 +20,11 @@ import org.nixdork.klog.util.createRandomAuthor
 import org.nixdork.klog.util.createRandomLogin
 import org.nixdork.klog.util.createRandomPassword
 import org.nixdork.klog.util.faker
+import org.nixdork.klog.util.insertPerson
 import org.nixdork.klog.util.installPostgres
 import org.nixdork.klog.util.resetPassword
 import java.time.OffsetDateTime
 import java.util.UUID
-import org.nixdork.klog.util.insertPerson
 
 class ExposedPeopleRepositorySpec : FunSpec({
     installPostgres()

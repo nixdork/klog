@@ -14,5 +14,5 @@ data class PersonModel(
     val avatar: String? = null,
     val lastLoginAt: OffsetDateTime? = null,
     val createdAt: OffsetDateTime? = null,
-    val updatedAt: OffsetDateTime? = null
+    val updatedAt: OffsetDateTime? = null,
 )

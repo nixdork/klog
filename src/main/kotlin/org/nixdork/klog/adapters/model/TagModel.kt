@@ -8,5 +8,5 @@ data class TagModel(
     val term: String,
     val permalink: String,
     val createdAt: OffsetDateTime? = null,
-    val updatedAt: OffsetDateTime? = null
+    val updatedAt: OffsetDateTime? = null,
 )

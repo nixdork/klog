@@ -13,5 +13,5 @@ data class KlogConfiguration(
     val style: String,
     val rights: String,
     val homeEntries: Int,
-    val passwordAge: Int
+    val passwordAge: Int,
 )

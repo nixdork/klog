@@ -9,6 +9,7 @@ import org.nixdork.klog.adapters.model.PasswordCreateResetModel
 import org.nixdork.klog.adapters.model.PersonLoginModel
 import org.nixdork.klog.adapters.model.PersonModel
 import org.nixdork.klog.adapters.model.VerifyLoginModel
+import org.nixdork.klog.common.CRYPTO_BYTES_TO_GENERATE
 import org.nixdork.klog.common.generateHash
 import org.nixdork.klog.common.generateSalt
 import org.nixdork.klog.common.upsert
@@ -64,7 +65,7 @@ class ExposedPeopleRepository : PeopleRepository {
 
     override fun upsertPassword(password: PasswordCreateResetModel): PersonModel =
         transaction {
-            val salt = getPasswordByEmail(password.email)?.salt ?: generateSalt(16)
+            val salt = getPasswordByEmail(password.email)?.salt ?: generateSalt(CRYPTO_BYTES_TO_GENERATE)
             People.upsert {
                 it[id] = password.id
                 it[email] = password.email

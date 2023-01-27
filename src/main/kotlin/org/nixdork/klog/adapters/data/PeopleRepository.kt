@@ -1,8 +1,8 @@
 package org.nixdork.klog.adapters.data
 
-import org.nixdork.klog.adapters.model.PersonModel
-import org.nixdork.klog.adapters.model.PersonLoginModel
 import org.nixdork.klog.adapters.model.PasswordCreateResetModel
+import org.nixdork.klog.adapters.model.PersonLoginModel
+import org.nixdork.klog.adapters.model.PersonModel
 import org.nixdork.klog.adapters.model.VerifyLoginModel
 import java.util.UUID
 
