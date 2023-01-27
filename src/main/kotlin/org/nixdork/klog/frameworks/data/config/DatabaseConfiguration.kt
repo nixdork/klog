@@ -1,6 +1,7 @@
 package org.nixdork.klog.frameworks.data.config
 
 import com.zaxxer.hikari.HikariConfig
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.nixdork.klog.common.toJdbcUrl
@@ -9,7 +10,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import mu.KotlinLogging
 import java.sql.Connection
 import javax.sql.DataSource
 

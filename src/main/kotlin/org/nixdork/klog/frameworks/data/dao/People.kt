@@ -19,7 +19,8 @@ object People : UUIDTable("person") {
     val hash = text("hash").nullable()
     val salt = text("salt").nullable()
     val pwat = timestamp("pwat").nullable()
-    val role = customEnumeration("role",
+    val role = customEnumeration(
+        "role",
         "klog_role",
         { value -> Roles.valueOf(value.toString()) },
         { role -> PgEnum("klog_role", role) }
@@ -31,7 +32,7 @@ object People : UUIDTable("person") {
     val updatedAt = timestamp("updated_at").nullable()
 }
 
-class Person(id: EntityID<UUID>): UUIDEntity(id) {
+class Person(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<Person>(People)
 
     var name by People.name

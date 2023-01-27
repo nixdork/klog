@@ -6,10 +6,10 @@ import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.EntryModel
+import org.nixdork.klog.adapters.model.TagModel
 import org.nixdork.klog.common.toOffsetDateTime
 import java.time.OffsetDateTime
 import java.util.UUID
-import org.nixdork.klog.adapters.model.TagModel
 
 object Entries : UUIDTable(name = "entry") {
     val slug = text("slug")
@@ -24,7 +24,7 @@ object Entries : UUIDTable(name = "entry") {
     val summary = text("summary").nullable()
 }
 
-class Entry(id: EntityID<UUID>): UUIDEntity(id) {
+class Entry(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<Entry>(Entries)
 
     var slug by Entries.slug

@@ -11,7 +11,6 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 
-
 object Tags : UUIDTable("tag") {
     val term = text("term")
     val permalink = text("permalink")
@@ -19,7 +18,7 @@ object Tags : UUIDTable("tag") {
     val updatedAt = timestamp("updated_at").nullable()
 }
 
-class Tag(id: EntityID<UUID>): UUIDEntity(id) {
+class Tag(id: EntityID<UUID>) : UUIDEntity(id) {
     companion object : UUIDEntityClass<Tag>(Tags)
 
     var term by Tags.term
