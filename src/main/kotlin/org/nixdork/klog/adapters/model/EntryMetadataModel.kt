@@ -9,5 +9,5 @@ data class EntryMetadataModel(
     val key: String,
     val value: String,
     val createdAt: OffsetDateTime? = null,
-    val updatedAt: OffsetDateTime? = null
+    val updatedAt: OffsetDateTime? = null,
 )
