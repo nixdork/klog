@@ -1,0 +1,86 @@
+[versions]
+kotlin-core = "1.8.0"
+kotlin-language-level = "1.8"
+jvm-target = "17"
+
+detekt = "1.22.0"
+exposed-core = "0.41.1"
+gradle-analyze = "1.0.9"
+hikari-cp = "5.0.1"
+jackson-core = "2.14.1"
+java-validation-api = "2.0.1.Final"
+jetbrains-annotations = "13.0"
+kotest = "5.5.4"
+kotest-extensions-spring = "1.1.2"
+kotest-extensions-testcontainers = "1.3.4"
+kotlin-faker = "1.13.0"
+kotlin-logging-jvm = "3.0.4"
+postgresql = "42.5.1"
+spotless = "6.14.0"
+spring-boot-core = "3.0.1"
+spring-core = "6.0.3"
+spring-dependency-management = "1.1.0"
+testcontainers-core = "1.17.6"
+
+[libraries]
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin-core" }
+
+# libraries
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed-core" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed-core" }
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed-core" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed-core" }
+hikari-cp = { module = "com.zaxxer:HikariCP", version.ref = "hikari-cp" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson-core" }
+jackson-core = { module = "com.fasterxml.jackson.core:jackson-core", version.ref = "jackson-core" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson-core" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson-core" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson-core" }
+java-validation-api = { module = "javax.validation:validation-api", version.ref = "java-validation-api" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+kotlin-logging-jvm = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
+postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+spring-boot = { module = "org.springframework.boot:spring-boot", version.ref = "spring-boot-core" }
+spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot-core" }
+spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "spring-boot-core" }
+spring-context = { module = "org.springframework:spring-context", version.ref = "spring-core" }
+spring-web = { module = "org.springframework:spring-web", version.ref = "spring-core" }
+spring-webflux = { module = "org.springframework:spring-webflux", version.ref = "spring-core" }
+
+# test libraries
+kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
+kotest-assertions-shared-jvm = { module = "io.kotest:kotest-assertions-shared-jvm", version.ref = "kotest" }
+kotest-extensions-spring = { module = "io.kotest.extensions:kotest-extensions-spring", version.ref = "kotest-extensions-spring" }
+kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-extensions-testcontainers", version.ref = "kotest-extensions-testcontainers" }
+kotest-framework-api-jvm = { module = "io.kotest:kotest-framework-api-jvm", version.ref = "kotest" }
+kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+serpro-kotlin-faker = { module = "io.github.serpro69:kotlin-faker", version.ref = "kotlin-faker" }
+spring-boot-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot-core" }
+testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers-core" }
+testcontainers-jdbc = { module = "org.testcontainers:jdbc", version.ref = "testcontainers-core" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers-core" }
+
+# plugins as libraries
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-core" }
+arturbosch-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+faire-gradle-analyze = { module = "com.faire.gradle.analyze:com.faire.gradle.analyze.gradle.plugin", version.ref = "gradle-analyze" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-core" }
+kotlin-plugin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin-core" }
+arturbosch-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+diffplug-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+faire-gradle-analyze = { id = "com.faire.gradle.analyze", version.ref = "gradle-analyze" }
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot-core" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
+
+[bundles]
+database = ["exposed-core", "exposed-dao", "exposed-java-time", "exposed-jdbc", "hikari-cp", "postgresql-driver"]
+serialize = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-datatype-jsr310", "jackson-module-kotlin"]
+springboot = ["spring-boot", "spring-boot-autoconfigure", "spring-boot-devtools"]
+spring = ["spring-web", "spring-webflux", "spring-context"]
+kotest = ["kotest-assertions-core-jvm", "kotest-assertions-shared-jvm", "kotest-extensions-spring", "kotest-extensions-testcontainers", "kotest-framework-api-jvm", "kotest-framework-datatest", "kotest-property", "kotest-runner-junit5"]
+testcontainers = ["testcontainers-core", "testcontainers-jdbc", "testcontainers-postgresql"]
