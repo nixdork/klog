@@ -26,6 +26,7 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
+@Suppress("TooManyFunctions")
 @Component
 class ExposedEntriesRepository : EntriesRepository {
     override fun getLastestNEntries(n: Int): EntryWrapperModel =
@@ -101,6 +102,7 @@ class ExposedEntriesRepository : EntriesRepository {
             )
         }
 
+    @Suppress("MagicNumber")
     override fun getArchivedEntries(): ArchiveWrapperModel =
         transaction {
             Entries.select {

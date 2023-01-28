@@ -7,6 +7,7 @@ import org.nixdork.klog.adapters.model.EntryWrapperModel
 import org.nixdork.klog.adapters.model.TagToEntriesWrapperModel
 import java.util.UUID
 
+@Suppress("TooManyFunctions")
 interface EntriesRepository {
     fun getLastestNEntries(n: Int): EntryWrapperModel
     fun getAllEntries(): EntryWrapperModel
