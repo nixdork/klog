@@ -41,7 +41,7 @@ java-validation-api = { module = "javax.validation:validation-api", version.ref 
 jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
 kotlin-logging-jvm = { module = "io.github.microutils:kotlin-logging-jvm", version.ref = "kotlin-logging-jvm" }
 postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
-spring-boot = { module = "org.springframework.boot:spring-boot", version.ref = "spring-boot-core" }
+spring-boot = { module = "org.springframework.boot:spring-boot-starter", version.ref = "spring-boot-core" }
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot-core" }
 spring-boot-config-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "spring-boot-core" }
 spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "spring-boot-core" }
@@ -82,7 +82,6 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 [bundles]
 database = ["exposed-core", "exposed-dao", "exposed-java-time", "exposed-jdbc", "hikari-cp", "postgresql-driver"]
 serialize = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-datatype-jsr310", "jackson-module-kotlin"]
-springboot = ["spring-boot", "spring-boot-autoconfigure"]
 spring = ["spring-web", "spring-webflux", "spring-context"]
 kotest = ["kotest-assertions-core-jvm", "kotest-assertions-shared-jvm", "kotest-extensions-spring", "kotest-extensions-testcontainers", "kotest-framework-api-jvm", "kotest-framework-datatest", "kotest-property", "kotest-runner-junit5"]
 testcontainers = ["testcontainers-core", "testcontainers-jdbc", "testcontainers-postgresql"]
