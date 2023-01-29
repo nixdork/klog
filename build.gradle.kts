@@ -37,6 +37,7 @@ dependencies {
         testImplementation(it)
     }
 
+    annotationProcessor(libs.spring.boot.config.processor)
     developmentOnly(libs.spring.boot.devtools)
     detektPlugins(libs.arturbosch.detekt.formatting)
 }
