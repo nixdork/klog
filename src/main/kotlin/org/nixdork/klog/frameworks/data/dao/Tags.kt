@@ -4,18 +4,16 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.TagModel
-import org.nixdork.klog.common.toOffsetDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import org.nixdork.klog.common.CurrentOffsetDateTime
+import org.nixdork.klog.common.offsetDateTime
 import java.util.UUID
 
 object Tags : UUIDTable("tag") {
     val term = text("term")
     val permalink = text("permalink")
-    val createdAt = timestamp("created_at").default(OffsetDateTime.now(ZoneOffset.UTC).toInstant())
-    val updatedAt = timestamp("updated_at").nullable()
+    val createdAt = offsetDateTime("created_at").defaultExpression(CurrentOffsetDateTime())
+    val updatedAt = offsetDateTime("updated_at").nullable()
 }
 
 class Tag(id: EntityID<UUID>) : UUIDEntity(id) {
@@ -31,7 +29,7 @@ class Tag(id: EntityID<UUID>) : UUIDEntity(id) {
             id = this.id.value,
             term = this.term,
             permalink = this.permalink,
-            createdAt = this.createdAt.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime(),
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 }

@@ -2,10 +2,13 @@ package org.nixdork.klog.frameworks.data
 
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.batchReplace
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import org.nixdork.klog.adapters.data.EntriesRepository
 import org.nixdork.klog.adapters.model.ArchiveModel
 import org.nixdork.klog.adapters.model.ArchiveWrapperModel
@@ -13,7 +16,6 @@ import org.nixdork.klog.adapters.model.EntryMetadataModel
 import org.nixdork.klog.adapters.model.EntryModel
 import org.nixdork.klog.adapters.model.EntryWrapperModel
 import org.nixdork.klog.adapters.model.TagToEntriesWrapperModel
-import org.nixdork.klog.common.toOffsetDateTime
 import org.nixdork.klog.common.upsert
 import org.nixdork.klog.frameworks.data.dao.Entries
 import org.nixdork.klog.frameworks.data.dao.EntriesMetadata
@@ -26,7 +28,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.UUID
 
-@Suppress("TooManyFunctions")
 @Component
 class ExposedEntriesRepository : EntriesRepository {
     override fun getLastestNEntries(n: Int): EntryWrapperModel =
@@ -39,7 +40,8 @@ class ExposedEntriesRepository : EntriesRepository {
                         .toModel(
                             Tags.innerJoin(EntriesToTags)
                                 .select { EntriesToTags.entryId eq entry[Entries.id] }
-                                .map { tag -> Tag.wrapRow(tag).toModel() },
+                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                                .toSet(),
                         )
                 }
         }.toEntryWrapper()
@@ -51,7 +53,8 @@ class ExposedEntriesRepository : EntriesRepository {
                     entry.toModel(
                         Tags.innerJoin(EntriesToTags)
                             .select { EntriesToTags.entryId eq entry.id }
-                            .map { tag -> Tag.wrapRow(tag).toModel() },
+                            .map { tag -> Tag.wrapRow(tag).toModel() }
+                            .toSet(),
                     )
                 }.toEntryWrapper()
         }
@@ -64,7 +67,8 @@ class ExposedEntriesRepository : EntriesRepository {
                     entry.toModel(
                         Tags.innerJoin(EntriesToTags)
                             .select { EntriesToTags.entryId eq entry.id }
-                            .map { tag -> Tag.wrapRow(tag).toModel() },
+                            .map { tag -> Tag.wrapRow(tag).toModel() }
+                            .toSet(),
                     )
                 }
         }
@@ -75,7 +79,8 @@ class ExposedEntriesRepository : EntriesRepository {
                 entry.toModel(
                     Tags.innerJoin(EntriesToTags)
                         .select { EntriesToTags.entryId eq entry.id }
-                        .map { tag -> Tag.wrapRow(tag).toModel() },
+                        .map { tag -> Tag.wrapRow(tag).toModel() }
+                        .toSet(),
                 )
             }
         }
@@ -92,7 +97,8 @@ class ExposedEntriesRepository : EntriesRepository {
                         entry.toModel(
                             Tags.innerJoin(EntriesToTags)
                                 .select { EntriesToTags.entryId eq entry.id }
-                                .map { tag -> Tag.wrapRow(tag).toModel() },
+                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                                .toSet(),
                         )
                     }
                 }
@@ -102,14 +108,13 @@ class ExposedEntriesRepository : EntriesRepository {
             )
         }
 
-    @Suppress("MagicNumber")
     override fun getArchivedEntries(): ArchiveWrapperModel =
         transaction {
             Entries.select {
                 Entries.draft eq false
             }.groupBy {
-                val year = it[Entries.publishedAt]?.toOffsetDateTime()?.year?.toString()?.padStart(4, '0')
-                val month = it[Entries.publishedAt]?.toOffsetDateTime()?.month?.value?.toString()?.padStart(2, '0')
+                val year = it[Entries.publishedAt]?.year?.toString()?.padStart(4, '0')
+                val month = it[Entries.publishedAt]?.month?.value?.toString()?.padStart(2, '0')
                 "$year-$month"
             }.map {
                 val (year, month) = it.key.split('-')
@@ -120,7 +125,8 @@ class ExposedEntriesRepository : EntriesRepository {
                             entry.toModel(
                                 Tags.innerJoin(EntriesToTags)
                                     .select { EntriesToTags.entryId eq entry.id }
-                                    .map { tag -> Tag.wrapRow(tag).toModel() },
+                                    .map { tag -> Tag.wrapRow(tag).toModel() }
+                                    .toSet(),
                             )
                         }
                     },
@@ -153,9 +159,14 @@ class ExposedEntriesRepository : EntriesRepository {
                                     it[term] = tag.term
                                     it[permalink] = tag.permalink
                                 }
-                                EntriesToTags.upsert {
-                                    it[entryId] = entry.id
-                                    it[tagId] = tag.id
+                                if (EntriesToTags.select {
+                                        (EntriesToTags.entryId eq entry.id) and (EntriesToTags.tagId eq tag.id)
+                                    }.count().toInt() == 0
+                                ) {
+                                    EntriesToTags.insert {
+                                        it[entryId] = entry.id
+                                        it[tagId] = tag.id
+                                    }
                                 }
                             }
                         }
@@ -166,47 +177,51 @@ class ExposedEntriesRepository : EntriesRepository {
                         .toModel(
                             Tags.innerJoin(EntriesToTags)
                                 .select { EntriesToTags.entryId eq row[Entries.id] }
-                                .map { tag -> Tag.wrapRow(tag).toModel() },
+                                .map { tag -> Tag.wrapRow(tag).toModel() }
+                                .toSet(),
                         )
                 }
         }
 
     override fun publishEntry(entryId: UUID): EntryModel =
         transaction {
-            Entries.upsert {
-                it[id] = entryId
+            requireNotNull(Entry.findById(entryId)) {
+                "Entry with ID $entryId not found!"
+            }
+            Entries.update({ Entries.id eq entryId }) {
                 it[draft] = false
-                it[publishedAt] = OffsetDateTime.now().toInstant()
-            }.resultedValues!!
-                .single()
-                .let { row ->
-                    Entry.wrapRow(row)
-                        .toModel(
-                            Tags.innerJoin(EntriesToTags)
-                                .select { EntriesToTags.entryId eq row[Entries.id] }
-                                .map { tag -> Tag.wrapRow(tag).toModel() },
-                        )
-                }
+                it[publishedAt] = OffsetDateTime.now()
+            }
+            Entry.findById(entryId)!!.toModel(
+                Tags.innerJoin(EntriesToTags)
+                    .select { EntriesToTags.entryId eq entryId }
+                    .map { tag -> Tag.wrapRow(tag).toModel() }
+                    .toSet(),
+            )
         }
 
-    override fun batchUpsertMetadata(entryId: UUID, metadata: List<EntryMetadataModel>) {
-        EntriesMetadata.batchReplace(metadata) {
-            this[EntriesMetadata.id] = it.id
-            this[EntriesMetadata.key] = it.key
-            this[EntriesMetadata.value] = it.value
-            this[EntriesMetadata.entryId] = entryId
+    override fun batchUpsertMetadata(entryId: UUID, metadata: Set<EntryMetadataModel>) {
+        transaction {
+            EntriesMetadata.batchReplace(metadata) {
+                this[EntriesMetadata.id] = it.id
+                this[EntriesMetadata.key] = it.key
+                this[EntriesMetadata.value] = it.value
+                this[EntriesMetadata.entryId] = entryId
+            }
         }
     }
 
     override fun deleteEntryById(entryId: UUID) {
         transaction {
+            EntriesToTags.deleteWhere { EntriesToTags.entryId eq entryId }
             Entries.deleteWhere { Entries.id eq entryId }
         }
     }
 
     override fun deleteEntryBySlug(slug: String) {
         transaction {
-            Entries.deleteWhere { Entries.slug eq slug }
+            val entryId = Entry.find { Entries.slug eq slug }.singleOrNull()?.id?.value ?: return@transaction
+            deleteEntryById(entryId)
         }
     }
 

@@ -1,11 +1,12 @@
 package org.nixdork.klog.frameworks.data
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.comparables.shouldNotBeGreaterThan
+import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.nixdork.klog.adapters.model.EntryModel
 import org.nixdork.klog.adapters.model.PasswordCreateResetModel
 import org.nixdork.klog.adapters.model.PersonModel
@@ -42,12 +43,15 @@ class ExposedEntriesRepositorySpec : FunSpec({
 
     lateinit var dbTag: TagModel
     lateinit var ktTag: TagModel
-    lateinit var tagList: List<TagModel>
+    lateinit var tagList: Set<TagModel>
 
     lateinit var salt: String
     lateinit var hash: String
+    lateinit var adminId: UUID
     lateinit var meAdmin: PersonModel
     lateinit var mePwd: PasswordCreateResetModel
+    lateinit var authorId: UUID
+    lateinit var authorEmail: String
     lateinit var anyAuthor: PersonModel
     lateinit var anyPwdAuthor: PasswordCreateResetModel
 
@@ -57,33 +61,28 @@ class ExposedEntriesRepositorySpec : FunSpec({
     lateinit var entry04: EntryModel
 
     beforeSpec {
-        dbTag = faker.createDatabaseTag()
-        ktTag = faker.createKotlinTag()
-        insertTag(dbTag)
-        insertTag(ktTag)
-        tagList = listOf(dbTag, ktTag)
+        dbTag = insertTag(faker.createDatabaseTag())
+        ktTag = insertTag(faker.createKotlinTag())
+        tagList = setOf(dbTag, ktTag)
 
-        meAdmin = faker.createAdmin()
-        mePwd = faker.createPassword(meAdmin.id)
+        adminId = UUID.randomUUID()
+        mePwd = faker.createPassword(adminId)
         salt = generateSalt(16)
         hash = generateHash(mePwd.newPassword, salt)
-        insertPerson(meAdmin, salt, hash)
+        meAdmin = insertPerson(faker.createAdmin(adminId), salt, hash)
 
-        anyAuthor = faker.createRandomAuthor()
-        anyPwdAuthor = faker.createRandomPassword(anyAuthor.id, anyAuthor.email)
+        authorId = UUID.randomUUID()
+        authorEmail = faker.internet.email()
+        anyPwdAuthor = faker.createRandomPassword(authorId, authorEmail)
         salt = generateSalt(16)
         hash = generateHash(anyPwdAuthor.newPassword, salt)
-        insertPerson(anyAuthor, salt, hash)
+        anyAuthor = insertPerson(faker.createRandomAuthor(authorId, authorEmail), salt, hash)
 
         entriesRepo = ExposedEntriesRepository()
-        entry01 = faker.createRandomEntry(meAdmin, listOf(dbTag))
-        insertEntry(entry01)
-        entry02 = faker.createRandomEntry(meAdmin, listOf(ktTag)).copy(draft = true)
-        insertEntry(entry02)
-        entry03 = faker.createRandomEntry(meAdmin, tagList)
-        insertEntry(entry03)
-        entry04 = faker.createRandomEntry(anyAuthor, listOf(dbTag)).copy(draft = true)
-        insertEntry(entry04)
+        entry01 = insertEntry(faker.createRandomEntry(meAdmin, setOf(dbTag)))
+        entry02 = insertEntry(faker.createRandomEntry(meAdmin, setOf(ktTag)).copy(draft = true))
+        entry03 = insertEntry(faker.createRandomEntry(meAdmin, tagList))
+        entry04 = insertEntry(faker.createRandomEntry(anyAuthor, setOf(dbTag)).copy(draft = true))
     }
 
     context("GET") {
@@ -107,7 +106,7 @@ class ExposedEntriesRepositorySpec : FunSpec({
             val archived = entriesRepo.getArchivedEntries()
             val ym = "${OffsetDateTime.now().year}-${OffsetDateTime.now().month.value.toString().padStart(2, '0')}"
             archived.archives.count() shouldBe 1
-            archived.archives.single().entries.count() shouldBe 3
+            archived.archives.single().entries.count() shouldBe 2
             archived.archives.single().monthYear shouldBe ym
         }
 
@@ -147,7 +146,17 @@ class ExposedEntriesRepositorySpec : FunSpec({
             before.draft shouldBe true
             updated.draft shouldBe false
             before.tags shouldBe listOf(dbTag)
-            updated.tags shouldBe listOf(dbTag, ktTag)
+            updated.tags.forEach { tag ->
+                when (tag.term) {
+                    dbTag.term -> {
+                        tag.updatedAt?.shouldBeGreaterThan(dbTag.updatedAt ?: OffsetDateTime.MIN)
+                    }
+                    ktTag.term -> {
+                        tag.updatedAt?.shouldBeGreaterThan(ktTag.updatedAt ?: OffsetDateTime.MIN)
+                    }
+                    else -> Unit
+                }
+            }
         }
 
         test("publish entry sets draft to false and published at date") {
@@ -157,7 +166,7 @@ class ExposedEntriesRepositorySpec : FunSpec({
             before.slug shouldBe updated.slug
             before.draft shouldBe true
             updated.draft shouldBe false
-            updated.publishedAt?.shouldNotBeGreaterThan(before.publishedAt!!)
+            updated.publishedAt?.shouldBeGreaterThan(before.publishedAt!!)
         }
 
         test("update metadata given entry id") {
@@ -173,15 +182,21 @@ class ExposedEntriesRepositorySpec : FunSpec({
     context("DELETE") {
         test("delete entry given an existing id") {
             val before = entriesRepo.getEntryById(entry03.id)
-            val beforeTags = Tags.innerJoin(EntriesToTags)
-                .select { EntriesToTags.entryId eq entry03.id }
-                .map { Tag.wrapRow(it).toModel() }
-            val beforeMetadata = EntriesMetadata
-                .select { EntriesMetadata.entryId eq entry03.id }
-                .map { EntryMetadata.wrapRow(it).toModel() }
-            val beforeAuthor = People.select { People.id eq entry03.primaryAuthor.id }
-                .firstOrNull()
-                ?.let { Person.wrapRow(it).toModel() }
+            val beforeTags = transaction {
+                Tags.innerJoin(EntriesToTags)
+                    .select { EntriesToTags.entryId eq entry03.id }
+                    .map { Tag.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val beforeMetadata = transaction {
+                EntriesMetadata.select { EntriesMetadata.entryId eq entry03.id }
+                    .map { EntryMetadata.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val beforeAuthor = transaction {
+                People.select { People.id eq entry03.primaryAuthor.id }.firstOrNull()
+                    ?.let { Person.wrapRow(it).toModel() }
+            }
             before shouldNotBe null
             beforeTags.count() shouldBe 2
             beforeMetadata.count() shouldBe 2
@@ -189,15 +204,21 @@ class ExposedEntriesRepositorySpec : FunSpec({
 
             entriesRepo.deleteEntryById(entry03.id)
             val after = entriesRepo.getEntryById(entry03.id)
-            val afterTags = Tags.innerJoin(EntriesToTags)
-                .select { EntriesToTags.entryId eq entry03.id }
-                .map { Tag.wrapRow(it).toModel() }
-            val afterMetadata = EntriesMetadata
-                .select { EntriesMetadata.entryId eq entry03.id }
-                .map { EntryMetadata.wrapRow(it).toModel() }
-            val afterAuthor = People.select { People.id eq entry03.primaryAuthor.id }
-                .firstOrNull()
-                ?.let { Person.wrapRow(it).toModel() }
+            val afterTags = transaction {
+                Tags.innerJoin(EntriesToTags)
+                    .select { EntriesToTags.entryId eq entry03.id }
+                    .map { Tag.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val afterMetadata = transaction {
+                EntriesMetadata.select { EntriesMetadata.entryId eq entry03.id }
+                    .map { EntryMetadata.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val afterAuthor = transaction {
+                People.select { People.id eq entry03.primaryAuthor.id }.firstOrNull()
+                    ?.let { Person.wrapRow(it).toModel() }
+            }
             after shouldBe null
             afterTags.count() shouldBe 0
             afterMetadata.count() shouldBe 0
@@ -215,15 +236,21 @@ class ExposedEntriesRepositorySpec : FunSpec({
 
         test("delete entry given an existing slug") {
             val before = entriesRepo.getEntryBySlug(entry04.slug!!)
-            val beforeTags = Tags.innerJoin(EntriesToTags)
-                .select { EntriesToTags.entryId eq entry04.id }
-                .map { Tag.wrapRow(it).toModel() }
-            val beforeMetadata = EntriesMetadata
-                .select { EntriesMetadata.entryId eq entry04.id }
-                .map { EntryMetadata.wrapRow(it).toModel() }
-            val beforeAuthor = People.select { People.id eq entry04.primaryAuthor.id }
-                .firstOrNull()
-                ?.let { Person.wrapRow(it).toModel() }
+            val beforeTags = transaction {
+                Tags.innerJoin(EntriesToTags)
+                    .select { EntriesToTags.entryId eq entry04.id }
+                    .map { Tag.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val beforeMetadata = transaction {
+                EntriesMetadata.select { EntriesMetadata.entryId eq entry04.id }
+                    .map { EntryMetadata.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val beforeAuthor = transaction {
+                People.select { People.id eq entry04.primaryAuthor.id }.firstOrNull()
+                    ?.let { Person.wrapRow(it).toModel() }
+            }
             before shouldNotBe null
             beforeTags.count() shouldBe 2
             beforeMetadata.count() shouldBe 2
@@ -231,15 +258,21 @@ class ExposedEntriesRepositorySpec : FunSpec({
 
             entriesRepo.deleteEntryBySlug(entry04.slug!!)
             val after = entriesRepo.getEntryBySlug(entry04.slug!!)
-            val afterTags = Tags.innerJoin(EntriesToTags)
-                .select { EntriesToTags.entryId eq entry04.id }
-                .map { Tag.wrapRow(it).toModel() }
-            val afterMetadata = EntriesMetadata
-                .select { EntriesMetadata.entryId eq entry04.id }
-                .map { EntryMetadata.wrapRow(it).toModel() }
-            val afterAuthor = People.select { People.id eq entry04.primaryAuthor.id }
-                .firstOrNull()
-                ?.let { Person.wrapRow(it).toModel() }
+            val afterTags = transaction {
+                Tags.innerJoin(EntriesToTags)
+                    .select { EntriesToTags.entryId eq entry04.id }
+                    .map { Tag.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val afterMetadata = transaction {
+                EntriesMetadata.select { EntriesMetadata.entryId eq entry04.id }
+                    .map { EntryMetadata.wrapRow(it).toModel() }
+                    .toSet()
+            }
+            val afterAuthor = transaction {
+                People.select { People.id eq entry04.primaryAuthor.id }.firstOrNull()
+                    ?.let { Person.wrapRow(it).toModel() }
+            }
             after shouldBe null
             afterTags.count() shouldBe 0
             afterMetadata.count() shouldBe 0

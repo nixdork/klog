@@ -4,13 +4,12 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.PersonModel
 import org.nixdork.klog.adapters.model.VerifyLoginModel
+import org.nixdork.klog.common.CurrentOffsetDateTime
 import org.nixdork.klog.common.PgEnum
 import org.nixdork.klog.common.Roles
-import org.nixdork.klog.common.toOffsetDateTime
-import java.time.OffsetDateTime
+import org.nixdork.klog.common.offsetDateTime
 import java.util.UUID
 
 object People : UUIDTable("person") {
@@ -18,7 +17,7 @@ object People : UUIDTable("person") {
     val email = text("email")
     val hash = text("hash").nullable()
     val salt = text("salt").nullable()
-    val pwat = timestamp("pwat").nullable()
+    val pwat = offsetDateTime("pwat").nullable()
     val role = customEnumeration(
         "role",
         "klog_role",
@@ -27,9 +26,9 @@ object People : UUIDTable("person") {
     )
     val uri = text("uri").nullable()
     val avatar = text("avatar").nullable()
-    val lastLoginAt = timestamp("last_login_at").nullable()
-    val createdAt = timestamp("created_at").default(OffsetDateTime.now().toInstant())
-    val updatedAt = timestamp("updated_at").nullable()
+    val lastLoginAt = offsetDateTime("last_login_at").nullable()
+    val createdAt = offsetDateTime("created_at").defaultExpression(CurrentOffsetDateTime())
+    val updatedAt = offsetDateTime("updated_at").nullable()
 }
 
 class Person(id: EntityID<UUID>) : UUIDEntity(id) {
@@ -52,13 +51,13 @@ class Person(id: EntityID<UUID>) : UUIDEntity(id) {
             id = this.id.value,
             name = this.name,
             email = this.email,
-            passwordAt = this.pwat?.toOffsetDateTime(),
+            passwordAt = this.pwat,
             role = this.role,
             uri = this.uri,
             avatar = this.avatar,
-            lastLoginAt = this.lastLoginAt?.toOffsetDateTime(),
-            createdAt = this.createdAt.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime(),
+            lastLoginAt = this.lastLoginAt,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
         )
 
     fun toVerifyLoginModel(): VerifyLoginModel =
@@ -68,6 +67,6 @@ class Person(id: EntityID<UUID>) : UUIDEntity(id) {
             hash = this.hash,
             salt = this.salt,
             role = this.role,
-            lastLoginAt = this.lastLoginAt?.toOffsetDateTime(),
+            lastLoginAt = this.lastLoginAt,
         )
 }

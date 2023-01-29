@@ -4,11 +4,10 @@ import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.javatime.timestamp
 import org.nixdork.klog.adapters.model.EntryModel
 import org.nixdork.klog.adapters.model.TagModel
-import org.nixdork.klog.common.toOffsetDateTime
-import java.time.OffsetDateTime
+import org.nixdork.klog.common.CurrentOffsetDateTime
+import org.nixdork.klog.common.offsetDateTime
 import java.util.UUID
 
 object Entries : UUIDTable(name = "entry") {
@@ -16,9 +15,9 @@ object Entries : UUIDTable(name = "entry") {
     val permalink = text("permalink")
     val title = text("title")
     val draft = bool("draft")
-    val createdAt = timestamp("created_at").default(OffsetDateTime.now().toInstant())
-    val updatedAt = timestamp("updated_at").nullable()
-    val publishedAt = timestamp("published_at").nullable()
+    val createdAt = offsetDateTime("created_at").defaultExpression(CurrentOffsetDateTime())
+    val updatedAt = offsetDateTime("updated_at").nullable()
+    val publishedAt = offsetDateTime("published_at").nullable()
     val primaryAuthor = reference("author_id", People)
     val content = text("content")
     val summary = text("summary").nullable()
@@ -40,20 +39,20 @@ class Entry(id: EntityID<UUID>) : UUIDEntity(id) {
 
     val metadata by EntryMetadata referrersOn EntriesMetadata.entryId
 
-    fun toModel(tags: List<TagModel>): EntryModel =
+    fun toModel(tags: Set<TagModel>): EntryModel =
         EntryModel(
             id = this.id.value,
             title = this.title,
             slug = this.slug,
             permalink = this.permalink,
             draft = this.draft,
-            createdAt = this.createdAt.toOffsetDateTime(),
-            updatedAt = this.updatedAt?.toOffsetDateTime(),
-            publishedAt = this.publishedAt?.toOffsetDateTime(),
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
+            publishedAt = this.publishedAt,
             primaryAuthor = this.primaryAuthor.toModel(),
             content = this.content,
             summary = this.summary,
             tags = tags,
-            metadata = this.metadata.map { it.toModel() },
+            metadata = this.metadata.map { it.toModel() }.toSet(),
         )
 }
