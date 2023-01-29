@@ -20,12 +20,19 @@ dependencies {
         libs.kotlin.logging.jvm,
         libs.java.validation.api,
         libs.jetbrains.annotations,
-        libs.bundles.springboot,
+        libs.spring.boot.autoconfigure,
         libs.bundles.spring,
         libs.bundles.serialize,
         libs.bundles.database,
     ).forEach {
         implementation(it)
+    }
+
+    implementation(libs.spring.boot) {
+        exclude(group = "ch.qos.logback", module = "logback-classic")
+        exclude(group = "ch.qos.logback", module = "logback-core")
+        exclude(group = "org.slf4j", module = "slf4j-api")
+        exclude(group = "org.slf4j", module = "log4j-over-slf4j")
     }
 
     listOf(
