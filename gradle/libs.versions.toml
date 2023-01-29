@@ -26,6 +26,7 @@ testcontainers-core = "1.17.6"
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin-core" }
 
 # libraries
+arturbosch-detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed-core" }
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed-core" }
 exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed-core" }
@@ -80,7 +81,7 @@ spring-dependency-management = { id = "io.spring.dependency-management", version
 [bundles]
 database = ["exposed-core", "exposed-dao", "exposed-java-time", "exposed-jdbc", "hikari-cp", "postgresql-driver"]
 serialize = ["jackson-core", "jackson-annotations", "jackson-databind", "jackson-datatype-jsr310", "jackson-module-kotlin"]
-springboot = ["spring-boot", "spring-boot-autoconfigure", "spring-boot-devtools"]
+springboot = ["spring-boot", "spring-boot-autoconfigure"]
 spring = ["spring-web", "spring-webflux", "spring-context"]
 kotest = ["kotest-assertions-core-jvm", "kotest-assertions-shared-jvm", "kotest-extensions-spring", "kotest-extensions-testcontainers", "kotest-framework-api-jvm", "kotest-framework-datatest", "kotest-property", "kotest-runner-junit5"]
 testcontainers = ["testcontainers-core", "testcontainers-jdbc", "testcontainers-postgresql"]
