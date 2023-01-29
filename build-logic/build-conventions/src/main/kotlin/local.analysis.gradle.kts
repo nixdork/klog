@@ -33,35 +33,35 @@ tasks {
         }
     }
 
-//    register("lint") {
-//        group = "verification"
-//        description = "Lint all code using configured linters. Runs 'spotlessCheck' "
-//        dependsOn(named("spotlessCheck"))
-//    }
-//
-//    register("ktlint") { // runs "spotlessKotlinCheck" and "spotlessKotlinGradleCheck"
-//        group = "verification"
-//        description = "Lint Kotlin code. Runs 'spotlessKotlinCheck' and 'spotlessKotlinGradleCheck'"
-//        dependsOn(
-//            named("spotlessKotlinCheck"),
-//            named("spotlessKotlinGradleCheck"),
-//        )
-//    }
-//
-//    register("lintFormat") { // runs "spotlessApply"
-//        group = "verification"
-//        description = "Format all code using configured formatters. Runs 'spotlessApply' "
-//        dependsOn(named("spotlessApply"))
-//    }
-//
-//    register("ktlintFormat") { // runs "spotlessKotlinApply" and "spotlessKotlinGradleApply"
-//        group = "verification"
-//        description = "Format Kotlin code. Runs 'spotlessKotlinApply' and 'spotlessKotlinGradleApply'"
-//        dependsOn(
-//            named("spotlessKotlinApply"),
-//            named("spotlessKotlinGradleApply"),
-//        )
-//    }
+    register("lint") {
+        group = "verification"
+        description = "Lint all code using configured linters. Runs 'spotlessCheck' "
+        dependsOn(named("spotlessCheck"))
+    }
+
+    register("ktlint") { // runs "spotlessKotlinCheck" and "spotlessKotlinGradleCheck"
+        group = "verification"
+        description = "Lint Kotlin code. Runs 'spotlessKotlinCheck' and 'spotlessKotlinGradleCheck'"
+        dependsOn(
+            named("spotlessKotlinCheck"),
+            named("spotlessKotlinGradleCheck"),
+        )
+    }
+
+    register("lintFormat") { // runs "spotlessApply"
+        group = "verification"
+        description = "Format all code using configured formatters. Runs 'spotlessApply' "
+        dependsOn(named("spotlessApply"))
+    }
+
+    register("ktlintFormat") { // runs "spotlessKotlinApply" and "spotlessKotlinGradleApply"
+        group = "verification"
+        description = "Format Kotlin code. Runs 'spotlessKotlinApply' and 'spotlessKotlinGradleApply'"
+        dependsOn(
+            named("spotlessKotlinApply"),
+            named("spotlessKotlinGradleApply"),
+        )
+    }
 
     named("check") { dependsOn(named("detekt")) }
 }
