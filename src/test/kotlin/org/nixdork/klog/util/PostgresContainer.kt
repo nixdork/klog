@@ -4,6 +4,7 @@ import io.kotest.core.extensions.install
 import io.kotest.core.spec.Spec
 import io.kotest.extensions.testcontainers.SharedJdbcDatabaseContainerExtension
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -14,8 +15,10 @@ import org.nixdork.klog.common.upsert
 import org.nixdork.klog.frameworks.data.dao.Entries
 import org.nixdork.klog.frameworks.data.dao.EntriesMetadata
 import org.nixdork.klog.frameworks.data.dao.EntriesToTags
+import org.nixdork.klog.frameworks.data.dao.Entry
 import org.nixdork.klog.frameworks.data.dao.People
 import org.nixdork.klog.frameworks.data.dao.Person
+import org.nixdork.klog.frameworks.data.dao.Tag
 import org.nixdork.klog.frameworks.data.dao.Tags
 import org.testcontainers.containers.PostgreSQLContainer
 import java.time.OffsetDateTime
@@ -50,17 +53,20 @@ fun Spec.installPostgres() {
     }
 }
 
-internal fun insertTag(tag: TagModel) {
+internal fun insertTag(tag: TagModel): TagModel =
     transaction {
         Tags.upsert {
             it[id] = tag.id
             it[term] = tag.term
             it[permalink] = tag.permalink
-        }
+        }.resultedValues!!
+            .single()
+            .let {
+                Tag.wrapRow(it).toModel()
+            }
     }
-}
 
-internal fun insertPerson(person: PersonModel, salt: String, hash: String) {
+internal fun insertPerson(person: PersonModel, salt: String, hash: String): PersonModel =
     transaction {
         People.upsert {
             it[id] = person.id
@@ -69,22 +75,23 @@ internal fun insertPerson(person: PersonModel, salt: String, hash: String) {
             it[role] = person.role
             it[uri] = person.uri
             it[avatar] = person.avatar
-            it[pwat] = OffsetDateTime.now().toInstant()
+            it[pwat] = OffsetDateTime.now()
             it[People.salt] = salt
             it[People.hash] = hash
-        }
+        }.resultedValues!!
+            .single()
+            .let { Person.wrapRow(it).toModel() }
     }
-}
 
-internal fun insertEntry(entry: EntryModel) {
-    transaction {
+internal fun insertEntry(entry: EntryModel): EntryModel {
+    return transaction {
         Entries.upsert {
             it[id] = entry.id
             it[slug] = entry.slug!!
             it[permalink] = entry.permalink
             it[title] = entry.title
             it[draft] = entry.draft
-            it[publishedAt] = entry.publishedAt?.toInstant()
+            it[publishedAt] = entry.publishedAt
             it[primaryAuthor] = entry.primaryAuthor.id
             it[content] = entry.content
             it[summary] = entry.summary
@@ -103,5 +110,11 @@ internal fun insertEntry(entry: EntryModel) {
                 it[tagId] = tag.id
             }
         }
+        Entry.findById(entry.id)!!.toModel(
+            Tags.innerJoin(EntriesToTags)
+                .select { EntriesToTags.entryId eq entry.id }
+                .map { tag -> Tag.wrapRow(tag).toModel() }
+                .toSet(),
+        )
     }
 }

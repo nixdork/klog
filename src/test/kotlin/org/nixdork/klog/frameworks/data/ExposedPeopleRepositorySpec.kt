@@ -29,42 +29,50 @@ import java.util.UUID
 class ExposedPeopleRepositorySpec : FunSpec({
     installPostgres()
 
+    lateinit var peopleRepo: ExposedPeopleRepository
+
     lateinit var salt: String
     lateinit var hash: String
-    lateinit var peopleRepo: ExposedPeopleRepository
+    lateinit var meAdminId: UUID
     lateinit var meAdmin: PersonModel
-    lateinit var mePwd: PasswordCreateResetModel
-    lateinit var meReset: PasswordCreateResetModel
-    lateinit var meLogin: PersonLoginModel
+    lateinit var meAdminPwd: PasswordCreateResetModel
+    lateinit var meAdminReset: PasswordCreateResetModel
+    lateinit var meAdminLogin: PersonLoginModel
+    lateinit var anyAdminId: UUID
+    lateinit var anyAdminEmail: String
     lateinit var anyAdmin: PersonModel
-    lateinit var anyPwd: PasswordCreateResetModel
-    lateinit var anyLogin: PersonLoginModel
+    lateinit var anyAdminPwd: PasswordCreateResetModel
+    lateinit var anyAdminLogin: PersonLoginModel
+    lateinit var anyAuthorId: UUID
+    lateinit var anyAuthorEmail: String
     lateinit var anyAuthor: PersonModel
     lateinit var anyPwdAuthor: PasswordCreateResetModel
 
     beforeSpec {
         peopleRepo = ExposedPeopleRepository()
 
-        meAdmin = faker.createAdmin()
-        mePwd = faker.createPassword(meAdmin.id)
-        meReset = faker.resetPassword(meAdmin.id)
+        meAdminId = UUID.randomUUID()
+        meAdminPwd = faker.createPassword(meAdminId)
+        meAdminReset = faker.resetPassword(meAdminId)
         salt = generateSalt(16)
-        hash = generateHash(mePwd.newPassword, salt)
-        insertPerson(meAdmin, salt, hash)
-        meLogin = faker.createLogin(mePwd)
+        hash = generateHash(meAdminPwd.newPassword, salt)
+        meAdmin = insertPerson(faker.createAdmin(meAdminId), salt, hash)
+        meAdminLogin = faker.createLogin(meAdminPwd)
 
-        anyAdmin = faker.createRandomAdmin()
-        anyPwd = faker.createRandomPassword(anyAdmin.id, anyAdmin.email)
+        anyAdminId = UUID.randomUUID()
+        anyAdminEmail = faker.internet.email()
+        anyAdminPwd = faker.createRandomPassword(anyAdminId, anyAdminEmail)
         salt = generateSalt(16)
-        hash = generateHash(anyPwd.newPassword, salt)
-        insertPerson(anyAdmin, salt, hash)
-        anyLogin = faker.createLogin(anyPwd)
+        hash = generateHash(anyAdminPwd.newPassword, salt)
+        anyAdmin = insertPerson(faker.createRandomAdmin(anyAdminId, anyAdminEmail), salt, hash)
+        anyAdminLogin = faker.createLogin(anyAdminPwd)
 
-        anyAuthor = faker.createRandomAuthor()
-        anyPwdAuthor = faker.createRandomPassword(anyAuthor.id, anyAuthor.email)
+        anyAuthorId = UUID.randomUUID()
+        anyAuthorEmail = faker.internet.email()
+        anyPwdAuthor = faker.createRandomPassword(anyAuthorId, anyAuthorEmail)
         salt = generateSalt(16)
         hash = generateHash(anyPwdAuthor.newPassword, salt)
-        insertPerson(anyAuthor, salt, hash)
+        anyAuthor = insertPerson(faker.createRandomAuthor(anyAuthorId, anyAuthorEmail), salt, hash)
     }
 
     context("GET") {
@@ -86,9 +94,9 @@ class ExposedPeopleRepositorySpec : FunSpec({
         }
 
         test("given existing id return person") {
-            val author = peopleRepo.getPersonById(anyAuthor.id)!!
-            author.email shouldBe anyAuthor.email
-            author.name shouldBe anyAuthor.name
+            val admin = peopleRepo.getPersonById(anyAdmin.id)!!
+            admin.email shouldBe anyAdmin.email
+            admin.name shouldBe anyAdmin.name
         }
 
         test("given an id that does not exist return null") {
@@ -96,8 +104,8 @@ class ExposedPeopleRepositorySpec : FunSpec({
         }
 
         test("given valid password return true") {
-            peopleRepo.verifyPassword(anyLogin).shouldBeTrue()
-            peopleRepo.verifyPassword(meLogin).shouldBeTrue()
+            peopleRepo.verifyPassword(anyAdminLogin).shouldBeTrue()
+            peopleRepo.verifyPassword(meAdminLogin).shouldBeTrue()
         }
 
         test("given invalid password return false") {
@@ -119,7 +127,7 @@ class ExposedPeopleRepositorySpec : FunSpec({
 
         test("update password on pk conflict or insert otherwise") {
             val before = peopleRepo.getPasswordByEmail(meAdmin.email)!!
-            val update = peopleRepo.upsertPassword(meReset)
+            val update = peopleRepo.upsertPassword(meAdminReset)
             val current = peopleRepo.getPasswordByEmail(meAdmin.email)!!
             before.email shouldBe update.email
             update.email shouldBe current.email

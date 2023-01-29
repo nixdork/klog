@@ -10,7 +10,6 @@ import org.nixdork.klog.common.DATASOURCE_MAX_POOL_SIZE
 import org.nixdork.klog.common.DATASOURCE_VALIDATION_TIMEOUT
 import java.time.Duration
 
-@Suppress("LongParameterList")
 class ShutdownHookHikariDataSource(
     private val shutdownHooks: List<Runnable>,
     config: HikariConfig,

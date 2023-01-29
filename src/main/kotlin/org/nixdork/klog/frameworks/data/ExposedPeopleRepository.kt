@@ -1,6 +1,7 @@
 package org.nixdork.klog.frameworks.data
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -16,7 +17,6 @@ import org.nixdork.klog.common.upsert
 import org.nixdork.klog.frameworks.data.dao.People
 import org.nixdork.klog.frameworks.data.dao.Person
 import org.springframework.stereotype.Component
-import java.time.Instant
 import java.time.OffsetDateTime
 import java.util.UUID
 
@@ -43,7 +43,7 @@ class ExposedPeopleRepository : PeopleRepository {
 
     override fun updateLastLogin(personId: UUID): PersonModel? =
         transaction {
-            People.update({ People.id eq personId }) { it[lastLoginAt] = OffsetDateTime.now().toInstant() }
+            People.update({ People.id eq personId }) { it[lastLoginAt] = OffsetDateTime.now() }
             Person.findById(personId)?.toModel()
         }
 
@@ -65,18 +65,16 @@ class ExposedPeopleRepository : PeopleRepository {
 
     override fun upsertPassword(password: PasswordCreateResetModel): PersonModel =
         transaction {
+            requireNotNull(Person.findById(password.id)) {
+                "Person with ID ${password.id} not found!"
+            }
             val salt = getPasswordByEmail(password.email)?.salt ?: generateSalt(CRYPTO_BYTES_TO_GENERATE)
-            People.upsert {
-                it[id] = password.id
-                it[email] = password.email
+            People.update({ People.id.eq(password.id) and People.email.eq(password.email) }) {
                 it[hash] = generateHash(password.newPassword, salt)
                 it[People.salt] = salt
-                it[pwat] = Instant.now()
-            }.resultedValues!!
-                .single()
-                .let {
-                    Person.wrapRow(it).toModel()
-                }
+                it[pwat] = OffsetDateTime.now()
+            }
+            Person.findById(password.id)!!.toModel()
         }
 
     override fun deletePersonById(personId: UUID) {

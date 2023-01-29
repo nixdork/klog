@@ -16,6 +16,6 @@ data class EntryModel(
     val primaryAuthor: PersonModel,
     val content: String,
     val summary: String? = null,
-    val tags: List<TagModel>,
-    val metadata: List<EntryMetadataModel>? = null,
+    val tags: Set<TagModel>,
+    val metadata: Set<EntryMetadataModel>? = null,
 )
