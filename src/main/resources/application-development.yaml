@@ -54,6 +54,15 @@ database:
   password: password1
   connection_pool_size: '10'
 
+crypto:
+  hash:
+    hash-algorithm: "PBKDF2WithHmacSHA512"
+    salt-algorithm: "NativePRNGNonBlocking"
+    iterations: 120000
+    key-length: 256
+    bytes-to-generate: 16
+    secret: "SomeRandomSecret"
+
 klog:
   title: 'The Standard Output'
   subtitle: 'personal bliki of Jonas Gorauskas'
