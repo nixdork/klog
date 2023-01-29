@@ -7,7 +7,6 @@ import org.nixdork.klog.adapters.model.EntryWrapperModel
 import org.nixdork.klog.adapters.model.TagToEntriesWrapperModel
 import java.util.UUID
 
-@Suppress("TooManyFunctions")
 interface EntriesRepository {
     fun getLastestNEntries(n: Int): EntryWrapperModel
     fun getAllEntries(): EntryWrapperModel
@@ -18,7 +17,7 @@ interface EntriesRepository {
 
     fun upsertEntry(authorId: UUID, entry: EntryModel): EntryModel
     fun publishEntry(entryId: UUID): EntryModel
-    fun batchUpsertMetadata(entryId: UUID, metadata: List<EntryMetadataModel>)
+    fun batchUpsertMetadata(entryId: UUID, metadata: Set<EntryMetadataModel>)
 
     fun deleteEntryById(entryId: UUID)
     fun deleteEntryBySlug(slug: String)
