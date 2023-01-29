@@ -12,17 +12,17 @@ create type klog_role as enum ('CONTRIBUTOR', 'ADMIN');
 create table if not exists person
 (
     id            uuid primary key not null,
-    "name"        text,
+    "name"        text             not null,
     email         text             not null,
-    "hash"        text,      -- hex encoded
-    salt          text,      -- hex encoded
-    pwat          timestamp, -- password updated at
+    "hash"        text,           -- hex encoded
+    salt          text,           -- hex encoded
+    pwat          timestamptz(3), -- password updated at
     "role"        klog_role                 default 'CONTRIBUTOR',
     uri           text,
     avatar        text,
-    last_login_at timestamp,
-    created_at    timestamp        not null default now(),
-    updated_at    timestamp
+    last_login_at timestamptz(3),
+    created_at    timestamptz(3)   not null default current_timestamp,
+    updated_at    timestamptz(3)
 );
 
 create unique index if not exists person_email_uidx on person (email);
@@ -32,8 +32,8 @@ create table if not exists "tag"
     id         uuid primary key not null,
     term       text             not null, -- unique identifies the tag
     permalink  text             not null,
-    created_at timestamp        not null default now(),
-    updated_at timestamp
+    created_at timestamptz(3)   not null default current_timestamp,
+    updated_at timestamptz(3)
 );
 
 create unique index if not exists tag_term_uidx on "tag" (term);
@@ -45,9 +45,9 @@ create table if not exists entry
     permalink    text             not null,
     title        text             not null,
     draft        bool             not null default true,
-    created_at   timestamp        not null default now(),
-    updated_at   timestamp,
-    published_at timestamp,
+    created_at   timestamptz(3)   not null default current_timestamp,
+    updated_at   timestamptz(3),
+    published_at timestamptz(3),
     author_id    uuid references person on delete set null on update cascade,
     "content"    text             not null,
     summary      text
@@ -62,7 +62,7 @@ create table if not exists entry_to_tag
     tag_id   uuid references "tag"
 );
 
-create index if not exists entry_to_tag_idx on entry_to_tag (entry_id, tag_id);
+create unique index if not exists entry_to_tag_idx on entry_to_tag (entry_id, tag_id);
 
 create table if not exists entry_metadata
 (
@@ -70,8 +70,8 @@ create table if not exists entry_metadata
     entry_id   uuid references entry on delete set null on update cascade,
     "key"      text             not null,
     "value"    text             not null,
-    created_at timestamp        not null default now(),
-    updated_at timestamp
+    created_at timestamptz(3)   not null default current_timestamp,
+    updated_at timestamptz(3)
 );
 
 create index if not exists entry_metadata_key_idx on entry_metadata (entry_id, "key");
@@ -80,7 +80,7 @@ create or replace function table_updated_trgfn()
     returns trigger as
 $$
 begin
-    NEW.updated_at = now();
+    NEW.updated_at = current_timestamp;
     return NEW;
 end
 $$ language 'plpgsql';
