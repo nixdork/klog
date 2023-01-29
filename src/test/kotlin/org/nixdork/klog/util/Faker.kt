@@ -18,22 +18,22 @@ val faker by lazy { Faker() }
 fun Faker.createRandomTag() =
     TagModel(
         id = UUID.randomUUID(),
-        term = faker.ancient.unique.primordial(),
-        permalink = faker.internet.domain(),
+        term = ancient.unique.primordial(),
+        permalink = internet.domain(),
     )
 
-fun Faker.createDatabaseTag() = this.createRandomTag().copy(term = "database")
+fun Faker.createDatabaseTag() = createRandomTag().copy(term = "database")
 
-fun Faker.createKotlinTag() = this.createRandomTag().copy(term = "kotlin")
+fun Faker.createKotlinTag() = createRandomTag().copy(term = "kotlin")
 
-fun Faker.createRandomAdmin() =
+fun Faker.createRandomAdmin(uuid: UUID = UUID.randomUUID(), email: String = internet.email()) =
     PersonModel(
-        id = UUID.randomUUID(),
-        name = faker.cosmere.allomancers(),
-        email = faker.internet.email(),
+        id = uuid,
+        name = cosmere.allomancers(),
+        email = email,
         role = Roles.ADMIN,
-        uri = faker.internet.domain(),
-        avatar = faker.cosmere.shardWorlds(),
+        uri = internet.domain(),
+        avatar = cosmere.shardWorlds(),
         createdAt = OffsetDateTime.now(ZoneOffset.UTC),
     )
 
@@ -44,16 +44,17 @@ fun Faker.createAdmin(uuid: UUID = UUID.randomUUID()) =
         email = "jgorauskas@gmail.com",
         role = Roles.ADMIN,
         uri = "https://nixdork.org",
-        avatar = "jonasg.png",
+        avatar = "${cosmere.shardWorlds()}.png",
     )
 
-fun Faker.createRandomAuthor() = this.createRandomAdmin().copy(role = Roles.CONTRIBUTOR)
+fun Faker.createRandomAuthor(uuid: UUID = UUID.randomUUID(), email: String = internet.email()) =
+    createRandomAdmin(uuid, email).copy(role = Roles.CONTRIBUTOR)
 
-fun Faker.createRandomPassword(uuid: UUID = UUID.randomUUID(), email: String) =
+fun Faker.createRandomPassword(uuid: UUID = UUID.randomUUID(), email: String = internet.email()) =
     PasswordCreateResetModel(
         id = uuid,
         email = email,
-        newPassword = faker.random.randomString(
+        newPassword = random.randomString(
             length = 16,
             indexChars = true,
             auxiliaryChars = true,
@@ -75,9 +76,9 @@ fun Faker.resetRandomPassword(
 ): PasswordCreateResetModel =
     PasswordCreateResetModel(
         id = uuid,
-        email = faker.internet.email(),
+        email = internet.email(),
         password = currentPassword,
-        newPassword = faker.random.randomString(
+        newPassword = random.randomString(
             length = 16,
             indexChars = true,
             auxiliaryChars = true,
@@ -87,13 +88,13 @@ fun Faker.resetRandomPassword(
     )
 
 fun Faker.resetPassword(uuid: UUID = UUID.randomUUID()) =
-    this.createPassword(uuid).copy(newPassword = "ABCDEF1234567890")
+    createPassword(uuid).copy(newPassword = "ABCDEF1234567890")
 
-fun Faker.createRandomLogin(uuid: UUID = UUID.randomUUID(), email: String): PersonLoginModel {
-    return PersonLoginModel(
+fun Faker.createRandomLogin(uuid: UUID = UUID.randomUUID(), email: String = internet.email()): PersonLoginModel =
+    PersonLoginModel(
         id = uuid,
         email = email,
-        password = faker.random.randomString(
+        password = random.randomString(
             length = 16,
             indexChars = true,
             auxiliaryChars = true,
@@ -102,14 +103,13 @@ fun Faker.createRandomLogin(uuid: UUID = UUID.randomUUID(), email: String): Pers
         ),
         role = Roles.CONTRIBUTOR,
     )
-}
 
 fun Faker.createLogin(pwd: PasswordCreateResetModel) =
     this.createRandomLogin(pwd.id, pwd.email).copy(password = pwd.newPassword, role = Roles.ADMIN)
 
 fun Faker.createRandomEntry(
     author: PersonModel,
-    tags: List<TagModel>,
+    tags: Set<TagModel>,
     howManyMetadata: Int? = 2,
 ): EntryModel {
     val uuid = UUID.randomUUID()
@@ -135,14 +135,14 @@ internal fun Faker.createRandomMetadata(howMany: Int, entryId: UUID) =
         EntryMetadataModel(
             id = UUID.randomUUID(),
             entryId = entryId,
-            key = faker.random.randomString(
+            key = this.random.randomString(
                 length = 8,
                 indexChars = true,
                 auxiliaryChars = true,
                 punctuationChars = true,
                 numericalChars = true,
             ),
-            value = faker.random.randomString(
+            value = this.random.randomString(
                 length = 16,
                 indexChars = true,
                 auxiliaryChars = true,
@@ -150,7 +150,7 @@ internal fun Faker.createRandomMetadata(howMany: Int, entryId: UUID) =
                 numericalChars = true,
             ),
         )
-    }
+    }.toSet()
 
 internal fun Faker.generateParagraphs(
     howManyParagraphs: Int = 5,
@@ -164,8 +164,8 @@ internal fun Faker.generateParagraphs(
         (0 until howManySentencesPerParagraph).map {
             val howManyWordsPerSentence = (minWordsPerSentence..maxWordsPerSentence).random()
             (0 until howManyWordsPerSentence).map {
-                "${faker.lorem.words()} ${faker.lorem.supplemental()}"
-            }.joinToString(" ") + faker.lorem.punctuation()
+                "${this.lorem.words()} ${this.lorem.supplemental()}"
+            }.joinToString(" ") + this.lorem.punctuation()
         }.joinToString(" ")
     }.joinToString("\n\n")
 }
