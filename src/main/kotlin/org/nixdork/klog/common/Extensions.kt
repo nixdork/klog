@@ -5,9 +5,12 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import java.util.HexFormat
 import java.util.UUID
 
 fun String.toUUID(): UUID = UUID.fromString(this)
+
+fun ByteArray.hexEncode(): String = HexFormat.of().formatHex(this)
 
 fun String.slugify(): String = Normalizer.normalize(this, Normalizer.Form.NFD)
     .replace("[^\\w\\s-]".toRegex(), "")

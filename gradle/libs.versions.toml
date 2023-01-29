@@ -17,8 +17,8 @@ kotlin-faker = "1.13.0"
 kotlin-logging-jvm = "3.0.4"
 postgresql = "42.5.1"
 spotless = "6.14.0"
-spring-boot-core = "3.0.1"
-spring-core = "6.0.3"
+spring-boot-core = "3.0.2"
+spring-core = "6.0.4"
 spring-dependency-management = "1.1.0"
 testcontainers-core = "1.17.6"
 
@@ -43,6 +43,7 @@ kotlin-logging-jvm = { module = "io.github.microutils:kotlin-logging-jvm", versi
 postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
 spring-boot = { module = "org.springframework.boot:spring-boot", version.ref = "spring-boot-core" }
 spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure", version.ref = "spring-boot-core" }
+spring-boot-config-processor = { module = "org.springframework.boot:spring-boot-configuration-processor", version.ref = "spring-boot-core" }
 spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "spring-boot-core" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "spring-core" }
 spring-web = { module = "org.springframework:spring-web", version.ref = "spring-core" }
