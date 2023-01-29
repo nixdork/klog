@@ -4,6 +4,7 @@ import java.text.Normalizer
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 fun String.toUUID(): UUID = UUID.fromString(this)
@@ -17,3 +18,5 @@ fun String.slugify(): String = Normalizer.normalize(this, Normalizer.Form.NFD)
 
 // A `kotlinx.datetime.Instant`
 fun Instant.toOffsetDateTime(): OffsetDateTime = OffsetDateTime.ofInstant(this, ZoneOffset.UTC)
+
+fun OffsetDateTime.normalize(): OffsetDateTime = truncatedTo(ChronoUnit.MILLIS)
