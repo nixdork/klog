@@ -1,5 +1,6 @@
+
 ${AnsiColor.BRIGHT_WHITE}
-      A bliki engine written in Kotlin ${AnsiColor.CYAN}
+    A bliki engine written in Kotlin ${AnsiColor.CYAN}
                .
               /\\`.
       .------'\ \`.`-.               __ __ __
@@ -8,5 +9,5 @@ ${AnsiColor.BRIGHT_WHITE}
     [`-----------\//---'      |   / /| |/ / /_/ / /_/ /
      \             .---.      |  /_/ |_/_/\____/\__, /
       `-._________/     \_____|                /____/ ${AnsiColor.YELLOW}${AnsiStyle.BOLD}
-                                              v0.0.1
-${AnsiColor.BRIGHT_WHITE}${AnsiStyle.NORMAL}      Spring Boot ${spring-boot.version}
+         v0.0.1                    ${AnsiColor.BRIGHT_WHITE}${AnsiStyle.NORMAL}Spring Boot ${spring-boot.version}
+
