@@ -5,6 +5,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    idea
+    `version-catalog`
     kotlin("jvm")
 }
 
@@ -17,6 +19,11 @@ fun VersionCatalog.version(alias: String): String =
 
 val jvmVersion: String = libs.version("jvm-target")
 val kotlinLanguageVersion: String = libs.version("kotlin-language-level")
+
+// Configures Java toolchain both for Kotlin JVM and Java tasks
+kotlin {
+    jvmToolchain(jvmVersion.toInt())
+}
 
 configurations {
     compileOnly {
@@ -60,11 +67,13 @@ tasks {
             apiVersion.set(KotlinVersion.fromVersion(kotlinLanguageVersion))
         }
     }
+
+    withType<Jar> {
+        enabled = false // don't create a "-plain.jar"
+    }
 }
 
 java {
     withSourcesJar()
     withJavadocJar()
-    sourceCompatibility = JavaVersion.toVersion(jvmVersion)
-    targetCompatibility = JavaVersion.toVersion(jvmVersion)
 }

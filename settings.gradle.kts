@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import org.gradle.api.internal.FeaturePreviews.Feature.TYPESAFE_PROJECT_ACCESSORS
 import org.gradle.api.internal.FeaturePreviews.Feature.VERSION_CATALOGS
 
@@ -7,11 +9,12 @@ enableFeaturePreview(VERSION_CATALOGS.name)
 rootProject.name = "klog"
 
 pluginManagement {
-    includeBuild("build-logic")
     repositories {
         gradlePluginPortal()
+        mavenCentral()
         mavenLocal()
     }
+    includeBuild("build-logic")
 }
 
 gradle.rootProject {
@@ -24,3 +27,5 @@ gradle.rootProject {
         description = "a bliki written in kotlin"
     }
 }
+
+include("server")
