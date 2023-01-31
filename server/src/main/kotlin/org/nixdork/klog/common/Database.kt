@@ -10,12 +10,15 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.nixdork.klog.frameworks.data.config.properties.DatabaseProperties
 import org.postgresql.util.PGobject
 import java.time.OffsetDateTime
+import javax.sql.DataSource
 
 fun DatabaseProperties.toJdbcUrl(): String {
     val root = "jdbc:postgres://$host:$port/$name"
     val paramsString = mapOf("prepareThreshold" to 0).map { (key, value) -> "$key=$value" }.joinToString("&")
     return "$root?$paramsString"
 }
+
+fun DataSource.toJdbcUrl(): String = this.connection.metaData.url
 
 fun <T : Table> T.upsert(body: T.(UpdateBuilder<*>) -> Unit) = this.replace(body)
 
